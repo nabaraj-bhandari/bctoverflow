@@ -1,28 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Resource } from "@/lib/types";
 import { ResourceCard } from "@/components/resource-card";
-import PdfViewer from "@/components/pdf-viewer";
 import { Loader2 } from "lucide-react";
-import { useRecentResources } from "@/hooks/use-recent";
+import { extractGoogleDriveId } from "@/lib/utils";
 
 interface ResourcesPageClientProps {
   initialResources: Resource[];
   subjectName: string;
   categoryLabel: string;
+  subjectSlug: string;
+  category: string;
+  semesterId: string;
 }
 
 export default function ResourcesPageClient({
   initialResources,
   subjectName,
   categoryLabel,
+  subjectSlug,
+  category,
+  semesterId,
 }: ResourcesPageClientProps) {
-  const [resources] = useState<Resource[]>(initialResources);
-  const [selectedResource, setSelectedResource] = useState<Resource | null>(
-    null
+  const router = useRouter();
+  const resources = useMemo<Resource[]>(
+    () => initialResources || [],
+    [initialResources]
   );
-  const { addRecent } = useRecentResources();
 
   if (!initialResources) {
     return (
@@ -41,8 +47,11 @@ export default function ResourcesPageClient({
               key={resource.id}
               resource={resource}
               onView={() => {
-                addRecent(resource);
-                setSelectedResource(resource);
+                const driveId =
+                  extractGoogleDriveId(resource.url) || resource.id;
+                router.push(
+                  `/${semesterId}/${subjectSlug}/${category}/${driveId}`
+                );
               }}
             />
           ))}
@@ -52,13 +61,6 @@ export default function ResourcesPageClient({
           <p className="text-lg">{categoryLabel} will be updated soon.</p>
           <p>Check back later!</p>
         </div>
-      )}
-
-      {selectedResource && (
-        <PdfViewer
-          resource={selectedResource}
-          onClose={() => setSelectedResource(null)}
-        />
       )}
     </div>
   );

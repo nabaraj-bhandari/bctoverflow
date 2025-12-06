@@ -16,6 +16,7 @@ export default function ResourcesPage({
   params: Promise<{
     subject: string;
     category: any;
+    semesterId: string;
   }>;
 }) {
   const params = React.use(paramsPromise);
@@ -35,6 +36,9 @@ export default function ResourcesPage({
       initialResources={resources}
       subjectName={subjectName}
       categoryLabel={categoryLabel}
+      subjectSlug={params.subject}
+      category={params.category}
+      semesterId={params.semesterId}
     />
   );
 }

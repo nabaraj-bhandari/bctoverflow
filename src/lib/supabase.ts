@@ -72,10 +72,7 @@ export async function getSubjects(semester: number): Promise<Subject[]> {
 
 export async function getSubjectBySlug(slug: string): Promise<Subject | null> {
   if (shouldSkipTable("subjects")) {
-    return (
-      fallbackSubjects.find((s) => s.slug === slug) ||
-      null
-    );
+    return fallbackSubjects.find((s) => s.slug === slug) || null;
   }
   try {
     // Prefer a slug match; tolerate duplicates by taking the most recent
@@ -101,8 +98,7 @@ export async function getSubjectBySlug(slug: string): Promise<Subject | null> {
 
     // Attempt a more robust fetch if direct match fails, by fetching all and filtering
     const allSubjects = await getAllSubjectsAction();
-    const foundSubject =
-      allSubjects.find((s) => s.slug === slug);
+    const foundSubject = allSubjects.find((s) => s.slug === slug);
     if (foundSubject) return foundSubject;
 
     if (error) throw error;
@@ -111,10 +107,7 @@ export async function getSubjectBySlug(slug: string): Promise<Subject | null> {
   } catch (error: any) {
     if (isMissingTableError(error, "subjects")) {
       markTableMissing("subjects", error);
-      return (
-        fallbackSubjects.find((s) => s.slug === slug) ||
-        null
-      );
+      return fallbackSubjects.find((s) => s.slug === slug) || null;
     }
     console.error(
       `Error fetching subject by slug "${slug}":`,

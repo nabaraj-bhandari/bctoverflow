@@ -32,8 +32,8 @@ export function ResourceCard({ resource, onView }: ResourceCardProps) {
     <div className="group relative aspect-[3/4] w-full">
       <Card
         className={cn(
-            "h-full w-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 cursor-pointer flex flex-col justify-center items-center p-4 text-center",
-            getBackgroundColor(resource.id)
+          "h-full w-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 cursor-pointer flex flex-col justify-center items-center p-4 text-center",
+          getBackgroundColor(resource.id)
         )}
         onClick={onView}
       >
