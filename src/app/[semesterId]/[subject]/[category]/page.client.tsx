@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Resource } from "@/lib/types";
 import { ResourceCard } from "@/components/resource-card";
-import { PdfViewer } from "@/components/pdf-viewer";
+import PdfViewer from "@/components/pdf-viewer";
 import { Loader2 } from "lucide-react";
 import { useRecentResources } from "@/hooks/use-recent";
 
