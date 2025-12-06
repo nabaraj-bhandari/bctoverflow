@@ -40,7 +40,7 @@ export default function SubjectCategoriesPage({
   ];
 
   const enabledCategories = allCategories.filter(
-    (cat) => subject.enabledCategories[cat.key]
+    (cat) => subject.enabled_categories[cat.key]
   );
 
   return (

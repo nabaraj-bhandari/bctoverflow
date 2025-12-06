@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,20 +10,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AdminDashboardContent } from "./dashboard-content";
 
 const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin";
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter();
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem("bct-overflow-admin") === "true";
+      if (stored) {
+        setIsAuthed(true);
+      }
+    } catch (e) {
+      // sessionStorage not available; stay on login
+    }
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === ADMIN_PASSWORD) {
       try {
         sessionStorage.setItem("bct-overflow-admin", "true");
-        router.replace("/admin/dashboard");
+        setIsAuthed(true);
+        setError("");
       } catch (e) {
         setError(
           "Your browser does not support sessionStorage. Please use a modern browser."
@@ -34,6 +46,10 @@ export default function AdminLoginPage() {
       setError("Incorrect password.");
     }
   };
+
+  if (isAuthed) {
+    return <AdminDashboardContent />;
+  }
 
   return (
     <div className="flex items-center justify-center p-4">
