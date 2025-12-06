@@ -7,6 +7,8 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -16,10 +18,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  pathname,
 }: {
   children: React.ReactNode;
-  pathname: string;
 }) {
   return (
     <html lang="en">

@@ -18,7 +18,6 @@ interface ResourcesPageClientProps {
 
 export default function ResourcesPageClient({
   initialResources,
-  subjectName,
   categoryLabel,
   subjectSlug,
   category,

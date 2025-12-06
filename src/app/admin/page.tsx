@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,18 +17,14 @@ const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin";
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isAuthed, setIsAuthed] = useState(false);
-
-  useEffect(() => {
+  const [isAuthed, setIsAuthed] = useState(() => {
+    if (typeof window === "undefined") return false;
     try {
-      const stored = sessionStorage.getItem("bct-overflow-admin") === "true";
-      if (stored) {
-        setIsAuthed(true);
-      }
-    } catch (e) {
-      // sessionStorage not available; stay on login
+      return sessionStorage.getItem("bct-overflow-admin") === "true";
+    } catch {
+      return false;
     }
-  }, []);
+  });
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +33,7 @@ export default function AdminLoginPage() {
         sessionStorage.setItem("bct-overflow-admin", "true");
         setIsAuthed(true);
         setError("");
-      } catch (e) {
+      } catch {
         setError(
           "Your browser does not support sessionStorage. Please use a modern browser."
         );

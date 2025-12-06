@@ -17,13 +17,10 @@ export default function PdfRouteClient({ resource }: PdfRouteClientProps) {
     <PdfViewer
       resource={resource}
       onClose={() => {
-        if (hasNavigatedBack.current) return; // prevent multiple back
+        if (hasNavigatedBack.current) return;
         hasNavigatedBack.current = true;
         router.back();
       }}
     />
   );
-}
-function useRef(arg0: boolean) {
-  throw new Error("Function not implemented.");
 }

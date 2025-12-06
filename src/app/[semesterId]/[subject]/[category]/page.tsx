@@ -1,8 +1,9 @@
 import React from "react";
 import ResourcesPageClient from "./page.client";
 import { getResources, getSubjectBySlug } from "@/lib/supabase";
+import type { EnabledCategories } from "@/lib/types";
 
-const categoryLabels: { [key: string]: string } = {
+const categoryLabels: Record<keyof EnabledCategories, string> = {
   notes: "Notes",
   pyqs: "PYQs",
   books: "Books",
@@ -15,7 +16,7 @@ export default function ResourcesPage({
 }: {
   params: Promise<{
     subject: string;
-    category: any;
+    category: keyof EnabledCategories;
     semesterId: string;
   }>;
 }) {

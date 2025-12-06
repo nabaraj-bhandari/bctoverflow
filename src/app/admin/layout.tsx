@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -11,17 +11,15 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isVerified, setIsVerified] = useState(false);
+  const shouldRedirect = pathname.startsWith("/admin") && pathname !== "/admin";
 
   useEffect(() => {
-    if (pathname.startsWith("/admin") && pathname !== "/admin") {
+    if (shouldRedirect) {
       router.replace("/admin");
-      return;
     }
-    setIsVerified(true);
-  }, [pathname, router]);
+  }, [router, shouldRedirect]);
 
-  if (!isVerified) {
+  if (shouldRedirect) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />

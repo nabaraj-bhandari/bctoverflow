@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,11 +25,13 @@ const categoryLabels: Record<keyof EnabledCategories, string> = {
   exam: "Exam",
 };
 
-const normalizeSubject = (subject: any): Subject => ({
-  id: subject.id,
-  name: subject.name,
-  slug: subject.slug,
-  semester: Number(subject.semester),
+const normalizeSubject = (
+  subject: Partial<Subject> & { enabledCategories?: EnabledCategories }
+): Subject => ({
+  id: subject.id ?? "",
+  name: subject.name ?? "",
+  slug: subject.slug ?? "",
+  semester: Number(subject.semester ?? 0),
   enabled_categories: subject.enabled_categories ||
     subject.enabledCategories || {
       notes: true,
@@ -40,13 +42,13 @@ const normalizeSubject = (subject: any): Subject => ({
     },
 });
 
-const normalizeResource = (resource: any): Resource => ({
-  id: resource.id,
-  title: resource.title,
-  url: resource.url,
-  semester: Number(resource.semester),
-  subject: resource.subject,
-  category: resource.category,
+const normalizeResource = (resource: Partial<Resource>): Resource => ({
+  id: resource.id ?? "",
+  title: resource.title ?? "",
+  url: resource.url ?? "",
+  semester: Number(resource.semester ?? 0),
+  subject: resource.subject ?? "",
+  category: resource.category ?? "notes",
 });
 
 const extractDriveId = (link: string): string => {
@@ -57,9 +59,7 @@ const extractDriveId = (link: string): string => {
     if (match?.[1]) return match[1];
     const idParam = url.searchParams.get("id");
     if (idParam) return idParam;
-  } catch (err) {
-    // not a URL; fall through and return trimmed value
-  }
+  } catch {}
   return trimmed;
 };
 
@@ -71,43 +71,33 @@ export function ResourceManager() {
   const [error, setError] = useState<string | null>(null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [semester, setSemester] = useState<number | "">(1);
-  const [subjectId, setSubjectId] = useState<string>("");
-  const [category, setCategory] = useState<keyof EnabledCategories>("notes");
+  type FormState = {
+    title: string;
+    url: string;
+    semester: number | "";
+    subjectId: string;
+    category: keyof EnabledCategories;
+  };
 
+  const emptyForm: FormState = {
+    title: "",
+    url: "",
+    semester: 1,
+    subjectId: "",
+    category: "notes",
+  };
+
+  const [form, setForm] = useState<FormState>(emptyForm);
+  function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  const subjectIdRef = useRef(form.subjectId);
   useEffect(() => {
-    refreshData();
-  }, []);
+    subjectIdRef.current = form.subjectId;
+  }, [form.subjectId]);
 
-  useEffect(() => {
-    // Keep subject selection aligned with semester
-    const matchingSubject = subjects.find((s) => s.semester === semester);
-    if (matchingSubject && !subjectId) {
-      setSubjectId(matchingSubject.id);
-    }
-  }, [semester, subjects, subjectId]);
-
-  const sortedResources = useMemo(
-    () =>
-      [...resources].sort(
-        (a, b) => b.semester - a.semester || a.title.localeCompare(b.title)
-      ),
-    [resources]
-  );
-
-  const selectedSubject = subjects.find((s) => s.id === subjectId);
-  const availableCategories = useMemo(() => {
-    const enabled = selectedSubject?.enabled_categories;
-    if (!enabled)
-      return Object.keys(categoryLabels) as (keyof EnabledCategories)[];
-    return (Object.keys(enabled) as (keyof EnabledCategories)[]).filter(
-      (key) => enabled[key]
-    );
-  }, [selectedSubject]);
-
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -121,32 +111,67 @@ export function ResourceManager() {
       setSubjects(subjectList.map(normalizeSubject));
       setResources((resourceResult.data || []).map(normalizeResource));
 
-      // Default subject on first load
-      if (!subjectId && subjectList.length > 0) {
+      // Default subject on first load only
+      if (!subjectIdRef.current && subjectList.length > 0) {
         const first = subjectList[0];
-        setSemester(first.semester);
-        setSubjectId(first.id);
+        subjectIdRef.current = first.id;
+        setForm((prev) => ({
+          ...prev,
+          semester: first.semester,
+          subjectId: first.id,
+        }));
       }
-    } catch (err: any) {
-      setError(err?.message || "Failed to load resources");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to load resources";
+      setError(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    void refreshData();
+  }, [refreshData]);
+
+  useEffect(() => {
+    const matchingSubject = subjects.find((s) => s.semester === form.semester);
+    if (matchingSubject && !form.subjectId) {
+      setForm((prev) => ({ ...prev, subjectId: matchingSubject.id }));
+    }
+  }, [form.semester, form.subjectId, subjects]);
+
+  const sortedResources = useMemo(
+    () =>
+      [...resources].sort(
+        (a, b) => b.semester - a.semester || a.title.localeCompare(b.title)
+      ),
+    [resources]
+  );
+
+  const selectedSubject = subjects.find((s) => s.id === form.subjectId);
+  const availableCategories = useMemo(() => {
+    const enabled = selectedSubject?.enabled_categories;
+    if (!enabled)
+      return Object.keys(categoryLabels) as (keyof EnabledCategories)[];
+    return (Object.keys(enabled) as (keyof EnabledCategories)[]).filter(
+      (key) => enabled[key]
+    );
+  }, [selectedSubject]);
 
   const resetForm = () => {
     setEditingId(null);
-    setTitle("");
-    setUrl("");
     const firstSubject = subjects[0];
-    setSemester(firstSubject ? firstSubject.semester : 1);
-    setSubjectId(firstSubject ? firstSubject.id : "");
-    setCategory("notes");
+    setForm({
+      ...emptyForm,
+      semester: firstSubject ? firstSubject.semester : 1,
+      subjectId: firstSubject ? firstSubject.id : "",
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!subjectId) {
+    if (!form.subjectId) {
       setError("Select a subject first");
       return;
     }
@@ -155,11 +180,14 @@ export function ResourceManager() {
     setError(null);
 
     const payload = {
-      title: title.trim(),
-      url: extractDriveId(url),
-      semester: typeof semester === "number" ? semester : Number(semester),
-      subject: subjectId,
-      category,
+      title: form.title.trim(),
+      url: extractDriveId(form.url),
+      semester:
+        typeof form.semester === "number"
+          ? form.semester
+          : Number(form.semester),
+      subject: form.subjectId,
+      category: form.category,
     };
 
     try {
@@ -180,8 +208,10 @@ export function ResourceManager() {
 
       await refreshData();
       resetForm();
-    } catch (err: any) {
-      setError(err?.message || "Unable to save resource");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Unable to save resource";
+      setError(message);
     } finally {
       setSaving(false);
     }
@@ -189,11 +219,13 @@ export function ResourceManager() {
 
   const handleEdit = (resource: Resource) => {
     setEditingId(resource.id);
-    setTitle(resource.title);
-    setUrl(resource.url);
-    setSemester(resource.semester);
-    setSubjectId(resource.subject);
-    setCategory(resource.category as keyof EnabledCategories);
+    setForm({
+      title: resource.title,
+      url: resource.url,
+      semester: resource.semester,
+      subjectId: resource.subject,
+      category: resource.category as keyof EnabledCategories,
+    });
     setError(null);
   };
 
@@ -215,16 +247,18 @@ export function ResourceManager() {
       if (deleteError) throw deleteError;
       await refreshData();
       if (editingId === id) resetForm();
-    } catch (err: any) {
-      setError(err?.message || "Unable to delete resource");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Unable to delete resource";
+      setError(message);
     } finally {
       setSaving(false);
     }
   };
 
   const subjectOptionsForSemester = useMemo(
-    () => subjects.filter((s) => s.semester === semester),
-    [subjects, semester]
+    () => subjects.filter((s) => s.semester === form.semester),
+    [subjects, form.semester]
   );
 
   return (
@@ -241,8 +275,8 @@ export function ResourceManager() {
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={form.title}
+                onChange={(e) => updateForm("title", e.target.value)}
                 placeholder="Resource title"
                 required
               />
@@ -252,8 +286,8 @@ export function ResourceManager() {
               <Label htmlFor="url">Google Drive Link or ID</Label>
               <Input
                 id="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                value={form.url}
+                onChange={(e) => updateForm("url", e.target.value)}
                 placeholder="Paste Drive link or file ID"
                 required
               />
@@ -262,8 +296,8 @@ export function ResourceManager() {
             <div className="space-y-2">
               <Label>Semester</Label>
               <Select
-                value={String(semester)}
-                onValueChange={(value) => setSemester(Number(value))}
+                value={String(form.semester)}
+                onValueChange={(value) => updateForm("semester", Number(value))}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select semester" />
@@ -281,8 +315,8 @@ export function ResourceManager() {
             <div className="space-y-2">
               <Label>Subject</Label>
               <Select
-                value={subjectId || "none"}
-                onValueChange={(value) => setSubjectId(value)}
+                value={form.subjectId || "none"}
+                onValueChange={(value) => updateForm("subjectId", value)}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select subject" />
@@ -306,9 +340,9 @@ export function ResourceManager() {
             <div className="space-y-2">
               <Label>Category</Label>
               <Select
-                value={category}
+                value={form.category}
                 onValueChange={(value) =>
-                  setCategory(value as keyof EnabledCategories)
+                  updateForm("category", value as keyof EnabledCategories)
                 }
               >
                 <SelectTrigger className="w-full">
@@ -371,9 +405,6 @@ export function ResourceManager() {
                         <p className="text-xs text-muted-foreground">
                           Semester {res.semester} ·{" "}
                           {resSubject?.name || "Unknown"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {res.url}
                         </p>
                         <span className="mt-2 inline-block rounded-full bg-primary/10 px-2 py-1 text-xs">
                           {categoryLabels[

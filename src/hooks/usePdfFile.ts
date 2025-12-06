@@ -81,10 +81,12 @@ export function usePdfFile(proxyUrl: string | null, cacheKey: string) {
         const cloned = buffer.slice(0);
         fileCache.set(cacheKey, cloned);
         setFileData(cloned);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (controller.signal.aborted) return;
         console.error("pdf fetch error", err);
-        setError("Failed to load PDF");
+        const message =
+          err instanceof Error ? err.message : "Failed to load PDF";
+        setError(message);
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
@@ -92,7 +94,7 @@ export function usePdfFile(proxyUrl: string | null, cacheKey: string) {
 
     loadFile();
     return () => controller.abort();
-  }, [cacheKey, fileCache, proxyUrl, fileData, cacheApiAvailable]);
+  }, [cacheApiAvailable, cacheKey, fileCache, fileData, loading, proxyUrl]);
 
   const memoizedFile = useMemo(() => {
     if (!fileData) return null;

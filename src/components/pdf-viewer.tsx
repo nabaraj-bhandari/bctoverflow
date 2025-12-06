@@ -1,22 +1,35 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import "react-pdf/dist/Page/AnnotationLayer.css";
-import "react-pdf/dist/Page/TextLayer.css";
+import {
+  ComponentType,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
 import { Loader2, X } from "lucide-react";
 import { cn, getGoogleDriveDownloadUrl } from "@/lib/utils";
 import { Resource } from "@/lib/types";
 import { usePdfFile } from "@/hooks/usePdfFile";
+import { useInViewOnce } from "@/hooks/useInViewOnce";
+import type { DocumentProps, PageProps } from "react-pdf";
 
+const RENDER_TEXT = false;
+const RENDER_ANNOTATIONS = false;
 interface PdfViewerProps {
   resource: Resource;
   onClose: () => void;
 }
 
 export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
-  const [PDFDocument, setPDFDocument] = useState<any>(null);
-  const [PDFPage, setPDFPage] = useState<any>(null);
+  const [PDFDocument, setPDFDocument] =
+    useState<ComponentType<DocumentProps> | null>(null);
+  const [PDFPage, setPDFPage] = useState<ComponentType<PageProps> | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
+  const [pageWidth, setPageWidth] = useState<number>(960);
   const loadedPagesRef = useRef<number | null>(null);
 
   // Client-only dynamic import
@@ -59,12 +72,33 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
     setNumPages(0);
   }, [proxyUrl]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const updateWidth = () => {
+      const next = Math.min(window.innerWidth * 0.95, 1200);
+      setPageWidth(next);
+    };
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
   const handleLoadSuccess = useCallback((pdf: { numPages: number }) => {
     if (loadedPagesRef.current === pdf.numPages) return;
     loadedPagesRef.current = pdf.numPages;
     setNumPages(pdf.numPages);
-    // loading is cleared in fetch/cached path; avoid toggling here to prevent repeated renders
   }, []);
+
+  const pages = useMemo(() => {
+    return Array.from({ length: numPages }, (_, i) => (
+      <LazyPage
+        key={`page_${i + 1}`}
+        pageNumber={i + 1}
+        PDFPage={PDFPage!}
+        width={pageWidth}
+      />
+    ));
+  }, [numPages, PDFPage, pageWidth]);
 
   if (!PDFDocument || !PDFPage) {
     return (
@@ -109,29 +143,48 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
           <PDFDocument
             file={memoizedFile}
             onLoadSuccess={handleLoadSuccess}
-            onLoadError={(err: any) => {
+            onLoadError={(err: unknown) => {
               console.error(err);
               setError("Failed to load PDF");
               setLoading(false);
             }}
             loading=""
           >
-            {Array.from({ length: numPages }, (_, i) => (
-              <div
-                key={`page_${i + 1}`}
-                className="flex justify-center mb-4 last:mb-0 w-full"
-              >
-                <PDFPage
-                  width={window.innerWidth * 0.95}
-                  pageNumber={i + 1}
-                  renderAnnotationLayer={true}
-                  renderTextLayer={true}
-                />
-              </div>
-            ))}
+            {pages}
           </PDFDocument>
         )}
       </div>
     </div>
   );
 }
+
+const LazyPage = memo(function LazyPage({
+  pageNumber,
+  PDFPage,
+  width,
+}: {
+  pageNumber: number;
+  PDFPage: ComponentType<PageProps>;
+  width: number;
+}) {
+  const { ref, inView } = useInViewOnce({ rootMargin: "400px 0px" });
+  const placeholderHeight = Math.max(Math.round(width * 1.3), 400);
+
+  return (
+    <div ref={ref} className="flex justify-center mb-4 last:mb-0 w-full">
+      {inView ? (
+        <PDFPage
+          width={width}
+          pageNumber={pageNumber}
+          renderAnnotationLayer={RENDER_ANNOTATIONS}
+          renderTextLayer={RENDER_TEXT}
+        />
+      ) : (
+        <div
+          className="w-full max-w-5xl animate-pulse rounded-lg border border-white/10 bg-white/5"
+          style={{ height: placeholderHeight }}
+        />
+      )}
+    </div>
+  );
+});

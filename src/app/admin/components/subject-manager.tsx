@@ -26,11 +26,13 @@ const emptyCategories: EnabledCategories = {
   exam: false,
 };
 
-const normalizeSubject = (subject: any): Subject => ({
-  id: subject.id,
-  name: subject.name,
-  slug: subject.slug,
-  semester: Number(subject.semester),
+const normalizeSubject = (
+  subject: Partial<Subject> & { enabledCategories?: EnabledCategories }
+): Subject => ({
+  id: subject.id ?? "",
+  name: subject.name ?? "",
+  slug: subject.slug ?? "",
+  semester: Number(subject.semester ?? 0),
   enabled_categories:
     subject.enabled_categories ||
     subject.enabledCategories ||
@@ -77,8 +79,10 @@ export function SubjectManager() {
     try {
       const data = await getAllSubjectsAction();
       setSubjects(data.map(normalizeSubject));
-    } catch (err: any) {
-      setError(err?.message || "Failed to load subjects");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to load subjects";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -122,8 +126,10 @@ export function SubjectManager() {
 
       await refreshSubjects();
       resetForm();
-    } catch (err: any) {
-      setError(err?.message || "Unable to save subject");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Unable to save subject";
+      setError(message);
     } finally {
       setSaving(false);
     }
@@ -154,8 +160,10 @@ export function SubjectManager() {
       if (deleteError) throw deleteError;
       await refreshSubjects();
       if (editingId === id) resetForm();
-    } catch (err: any) {
-      setError(err?.message || "Unable to delete subject");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Unable to delete subject";
+      setError(message);
     } finally {
       setSaving(false);
     }
@@ -271,7 +279,7 @@ export function SubjectManager() {
                     <div>
                       <p className="font-semibold">{subject.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        Slug: {subject.slug} · Semester {subject.semester}
+                        Semester {subject.semester}
                       </p>
                     </div>
                     <div className="flex flex-col gap-2">

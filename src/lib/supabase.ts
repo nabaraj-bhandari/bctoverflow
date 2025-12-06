@@ -25,8 +25,8 @@ export const supabase = createClient(
   supabaseAnonKey || "dummy-key"
 );
 
-const isMissingTableError = (error: any, tableName: string) => {
-  const message = (error?.message || "").toLowerCase();
+const isMissingTableError = (error: unknown, tableName: string) => {
+  const message = (error instanceof Error ? error.message : "").toLowerCase();
   return (
     message.includes(`table '${tableName}'`) ||
     message.includes(`table "${tableName}"`) ||
@@ -38,7 +38,7 @@ const isMissingTableError = (error: any, tableName: string) => {
 const shouldSkipTable = (tableName: string) =>
   !supabaseConfigured || missingTables.has(tableName);
 
-const markTableMissing = (tableName: string, error: any) => {
+const markTableMissing = (tableName: string, error: unknown) => {
   if (!missingTables.has(tableName)) {
     missingTables.add(tableName);
     console.warn(
@@ -60,12 +60,12 @@ export async function getSubjects(semester: number): Promise<Subject[]> {
       .eq("semester", semester);
     if (error) throw error;
     return data || [];
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (isMissingTableError(error, "subjects")) {
       markTableMissing("subjects", error);
       return fallbackSubjects.filter((s) => s.semester === semester);
     }
-    console.error("Error fetching subjects:", error.message || error);
+    console.error("Error fetching subjects:", error);
     return fallbackSubjects.filter((s) => s.semester === semester);
   }
 }
@@ -104,15 +104,12 @@ export async function getSubjectBySlug(slug: string): Promise<Subject | null> {
     if (error) throw error;
     if (listError) throw listError;
     return null;
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (isMissingTableError(error, "subjects")) {
       markTableMissing("subjects", error);
       return fallbackSubjects.find((s) => s.slug === slug) || null;
     }
-    console.error(
-      `Error fetching subject by slug "${slug}":`,
-      error.message || error
-    );
+    console.error(`Error fetching subject by slug "${slug}":`, error);
     return null;
   }
 }
@@ -129,12 +126,12 @@ export async function getSubject(subjectId: string): Promise<Subject | null> {
       .single();
     if (error) throw error;
     return data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (isMissingTableError(error, "subjects")) {
       markTableMissing("subjects", error);
       return fallbackSubjects.find((s) => s.id === subjectId) || null;
     }
-    console.error("Error fetching subject:", error.message || error);
+    console.error("Error fetching subject:", error);
     return null;
   }
 }
@@ -163,7 +160,7 @@ export async function getResources(
     const { data, error } = await query;
     if (error) throw error;
     return data || [];
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (isMissingTableError(error, "resources")) {
       markTableMissing("resources", error);
       return fallbackResources.filter(
@@ -173,7 +170,7 @@ export async function getResources(
             (category as string).toLowerCase()
       );
     }
-    console.error("Error fetching resources:", error.message || error);
+    console.error("Error fetching resources:", error);
     return fallbackResources.filter(
       (r) =>
         r.subject === subjectSlug &&
@@ -199,12 +196,12 @@ export async function getResourcesByIds(ids: string[]): Promise<Resource[]> {
       .map((id) => data.find((res) => res.id === id))
       .filter(Boolean) as Resource[];
     return orderedData;
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (isMissingTableError(error, "resources")) {
       markTableMissing("resources", error);
       return fallbackResources.filter((res) => ids.includes(res.id));
     }
-    console.error("Error fetching resources by IDs:", error.message || error);
+    console.error("Error fetching resources by IDs:", error);
     return fallbackResources.filter((res) => ids.includes(res.id));
   }
 }

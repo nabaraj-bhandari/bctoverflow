@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import PdfRouteClient from "./page.client";
 import { getResources } from "@/lib/supabase";
 import { extractGoogleDriveId } from "@/lib/utils";
+import type { EnabledCategories } from "@/lib/types";
 
 export default function PdfRoutePage({
   params: paramsPromise,
@@ -10,14 +11,14 @@ export default function PdfRoutePage({
   params: Promise<{
     semesterId: string;
     subject: string;
-    category: string;
+    category: keyof EnabledCategories;
     id: string;
   }>;
 }) {
   const params = React.use(paramsPromise);
 
   const [resourceList] = React.use(
-    Promise.all([getResources(params.subject, params.category as any)])
+    Promise.all([getResources(params.subject, params.category)])
   ) as [Awaited<ReturnType<typeof getResources>>];
 
   const resource = resourceList?.find((r) => {
