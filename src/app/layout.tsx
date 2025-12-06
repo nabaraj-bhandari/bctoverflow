@@ -11,7 +11,7 @@ const poppins = Poppins({
   preload: false,
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: {
     default: "BCT Overflow",
     template: "%s | BCT Overflow",
@@ -66,14 +66,12 @@ export default function RootLayout({
               url: "https://bctoverflow.vercel.app",
               description:
                 "Study platform for BCT students. Notes, PYQs, and Computer Engineering resources.",
-              potentialAction: {
-                "@type": "SearchAction",
-                target:
-                  "https://bctoverflow.vercel.app/search?q={search_term_string}",
-                "query-input": "required name=search_term_string",
-              },
             }),
           }}
+        />
+        <meta
+          name="google-site-verification"
+          content="H6-45X_fdJ56z_WbBg37YHPSz0ijprwWiTBkqSwSJAc"
         />
       </head>
       <body className={`${poppins.variable} antialiased`}>
