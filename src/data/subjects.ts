@@ -5,7 +5,7 @@ export type Subject = {
   title: string;
 };
 
-export const semesters: number[] = [1, 2, 3];
+export const semesters: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
 
 export const subjectsBySem: Record<number, readonly Subject[]> = {
   1: [
