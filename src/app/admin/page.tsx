@@ -21,12 +21,13 @@ export default function AdminLoginPage() {
   const [isAuthed, setIsAuthed] = useState(false);
 
   useEffect(() => {
+    let authed = false;
     try {
-      const authed = sessionStorage.getItem("bct-overflow-admin") === "true";
-      setIsAuthed(authed);
+      authed = sessionStorage.getItem("bct-overflow-admin") === "true";
     } catch {
-      setIsAuthed(false);
+      authed = false;
     }
+    setIsAuthed(authed);
     setMounted(true);
   }, []);
 

@@ -93,7 +93,11 @@ export function ResourceManager() {
     setLoading(true);
     setError(null);
     try {
+      console.log("[ResourceManager] Fetching resources...");
+      const startTime = Date.now();
       const data = await getAllResources();
+      const duration = Date.now() - startTime;
+      console.log(`[ResourceManager] Fetched ${data.length} resources in ${duration}ms`);
       setResources(data);
 
       // Set default subject on first load
@@ -107,6 +111,7 @@ export function ResourceManager() {
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to load resources";
+      console.error("[ResourceManager] Error fetching resources:", err);
       setError(message);
     } finally {
       setLoading(false);
@@ -318,11 +323,21 @@ export function ResourceManager() {
         </CardHeader>
         <CardContent className="space-y-3">
           {loading ? (
-            <p className="text-sm text-muted-foreground">
-              Loading resources...
-            </p>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Loading resources...
+              </p>
+              <p className="text-xs text-muted-foreground">
+                This may take a moment on first load.
+              </p>
+            </div>
           ) : sortedResources.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No resources found.</p>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">No resources found.</p>
+              {error && (
+                <p className="text-xs text-destructive">Error: {error}</p>
+              )}
+            </div>
           ) : (
             <div className="space-y-3">
               {sortedResources.map((res) => {

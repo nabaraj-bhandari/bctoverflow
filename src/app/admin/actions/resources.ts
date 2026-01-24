@@ -4,28 +4,29 @@ import { prisma } from "@/lib/prisma";
 import { Resource } from "@/lib/types";
 
 export async function getAllResources(): Promise<Resource[]> {
-    try {
-        const resources = await prisma.resource.findMany({
-            orderBy: { createdAt: "desc" },
-        });
-        return resources;
-    } catch (error) {
-        console.error("Error fetching resources:", error);
-        return [];
-    }
+    const resources = await prisma.resource.findMany({
+        orderBy: { createdAt: "desc" },
+    });
+    console.log("[getAllResources] All subject codes in DB:", new Set(resources.map(r => r.subjectCode)));
+    return resources;
 }
 
 export async function getResourcesBySubjectCode(subjectCode: string): Promise<Resource[]> {
-    try {
-        const resources = await prisma.resource.findMany({
-            where: { subjectCode },
-            orderBy: { createdAt: "desc" },
-        });
-        return resources;
-    } catch (error) {
-        console.error("Error fetching resources by subject code:", error);
-        return [];
+    console.log(`[getResourcesBySubjectCode] Querying for subjectCode: "${subjectCode}" (length: ${subjectCode.length})`);
+    const resources = await prisma.resource.findMany({
+        where: { subjectCode },
+        orderBy: { createdAt: "desc" },
+    });
+    console.log(`[getResourcesBySubjectCode] Found ${resources.length} resources for ${subjectCode}`);
+    
+    // Debug: show all available subject codes
+    if (resources.length === 0) {
+        const allResources = await prisma.resource.findMany({ orderBy: { createdAt: "desc" } });
+        const uniqueCodes = new Set(allResources.map(r => r.subjectCode));
+        console.log(`[getResourcesBySubjectCode] Available codes in DB:`, Array.from(uniqueCodes));
     }
+    
+    return resources;
 }
 
 export async function createResourceAction(data: {

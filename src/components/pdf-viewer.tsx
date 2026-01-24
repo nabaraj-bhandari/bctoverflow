@@ -127,12 +127,6 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
       </header>
 
       <div className="flex-1 overflow-auto p-2">
-        {loading && (
-          <div className="flex h-full items-center justify-center text-white/80">
-            <Loader2 className="h-6 w-6 animate-spin" />
-          </div>
-        )}
-
         {error && (
           <div className="flex h-full flex-col items-center justify-center gap-4 text-sm text-white/80">
             <p>{error}</p>
@@ -143,6 +137,12 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
               <RotateCcw className="h-4 w-4" />
               Refresh Cache
             </button>
+          </div>
+        )}
+
+        {loading && !error && (
+          <div className="flex h-full items-center justify-center text-white/80">
+            <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         )}
 
