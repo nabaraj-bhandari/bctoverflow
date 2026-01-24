@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,44 +12,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase, getAllSubjectsAction } from "@/lib/supabase";
-import { EnabledCategories, Resource, Subject } from "@/lib/types";
+import { Resource } from "@/lib/types";
+import { subjectsBySem } from "@/data/subjects";
+import {
+  getAllResources,
+  createResourceAction,
+  updateResourceAction,
+  deleteResourceAction,
+} from "@/app/admin/actions/resources";
 
-const semesters = Array.from({ length: 8 }, (_, idx) => idx + 1);
-
-const categoryLabels: Record<keyof EnabledCategories, string> = {
+const categoryLabels: Record<string, string> = {
   notes: "Notes",
   pyqs: "PYQs",
   books: "Books",
-  lab: "Lab",
   exam: "Exam",
+  syllabus: "Syllabus",
+  assessments: "Assessments",
+  lab: "Lab Reports",
 };
-
-const normalizeSubject = (
-  subject: Partial<Subject> & { enabledCategories?: EnabledCategories }
-): Subject => ({
-  id: subject.id ?? "",
-  name: subject.name ?? "",
-  slug: subject.slug ?? "",
-  semester: Number(subject.semester ?? 0),
-  enabled_categories: subject.enabled_categories ||
-    subject.enabledCategories || {
-      notes: true,
-      pyqs: true,
-      books: true,
-      lab: false,
-      exam: false,
-    },
-});
-
-const normalizeResource = (resource: Partial<Resource>): Resource => ({
-  id: resource.id ?? "",
-  title: resource.title ?? "",
-  url: resource.url ?? "",
-  semester: Number(resource.semester ?? 0),
-  subject: resource.subject ?? "",
-  category: resource.category ?? "notes",
-});
 
 const extractDriveId = (link: string): string => {
   const trimmed = link.trim();
@@ -59,12 +39,29 @@ const extractDriveId = (link: string): string => {
     if (match?.[1]) return match[1];
     const idParam = url.searchParams.get("id");
     if (idParam) return idParam;
-  } catch {}
+  } catch { }
   return trimmed;
 };
 
+// Map subject code to subject object
+const getSubjectByCode = (code: string) => {
+  for (const semesterSubjects of Object.values(subjectsBySem)) {
+    const found = semesterSubjects.find((s) => s.code === code);
+    if (found) return found;
+  }
+  return null;
+};
+
+// Get all subject codes
+const getAllSubjectCodes = () => {
+  const codes: string[] = [];
+  for (const subjects of Object.values(subjectsBySem)) {
+    codes.push(...subjects.map((s) => s.code));
+  }
+  return codes;
+};
+
 export function ResourceManager() {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -74,51 +71,36 @@ export function ResourceManager() {
   type FormState = {
     title: string;
     url: string;
-    semester: number | "";
-    subjectId: string;
-    category: keyof EnabledCategories;
+    subjectCode: string;
+    category: string;
   };
 
   const emptyForm: FormState = {
     title: "",
     url: "",
-    semester: 1,
-    subjectId: "",
+    subjectCode: "",
     category: "notes",
   };
 
   const [form, setForm] = useState<FormState>(emptyForm);
-  function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }
 
-  const subjectIdRef = useRef(form.subjectId);
-  useEffect(() => {
-    subjectIdRef.current = form.subjectId;
-  }, [form.subjectId]);
+  const updateForm = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
 
   const refreshData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [subjectList, resourceResult] = await Promise.all([
-        getAllSubjectsAction(),
-        supabase.from("resources").select("*"),
-      ]);
+      const data = await getAllResources();
+      setResources(data);
 
-      if (resourceResult.error) throw resourceResult.error;
-
-      setSubjects(subjectList.map(normalizeSubject));
-      setResources((resourceResult.data || []).map(normalizeResource));
-
-      // Default subject on first load only
-      if (!subjectIdRef.current && subjectList.length > 0) {
-        const first = subjectList[0];
-        subjectIdRef.current = first.id;
+      // Set default subject on first load
+      const allCodes = getAllSubjectCodes();
+      if (!form.subjectCode && allCodes.length > 0) {
         setForm((prev) => ({
           ...prev,
-          semester: first.semester,
-          subjectId: first.id,
+          subjectCode: allCodes[0],
         }));
       }
     } catch (err: unknown) {
@@ -128,50 +110,34 @@ export function ResourceManager() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [form.subjectCode]);
 
   useEffect(() => {
     void refreshData();
   }, [refreshData]);
 
-  useEffect(() => {
-    const matchingSubject = subjects.find((s) => s.semester === form.semester);
-    if (matchingSubject && !form.subjectId) {
-      setForm((prev) => ({ ...prev, subjectId: matchingSubject.id }));
-    }
-  }, [form.semester, form.subjectId, subjects]);
-
   const sortedResources = useMemo(
     () =>
       [...resources].sort(
-        (a, b) => b.semester - a.semester || a.title.localeCompare(b.title)
+        (a, b) => a.subjectCode.localeCompare(b.subjectCode) || a.title.localeCompare(b.title),
       ),
-    [resources]
+    [resources],
   );
 
-  const selectedSubject = subjects.find((s) => s.id === form.subjectId);
-  const availableCategories = useMemo(() => {
-    const enabled = selectedSubject?.enabled_categories;
-    if (!enabled)
-      return Object.keys(categoryLabels) as (keyof EnabledCategories)[];
-    return (Object.keys(enabled) as (keyof EnabledCategories)[]).filter(
-      (key) => enabled[key]
-    );
-  }, [selectedSubject]);
+  const allSubjectCodes = useMemo(() => getAllSubjectCodes(), []);
 
   const resetForm = () => {
     setEditingId(null);
-    const firstSubject = subjects[0];
+    const allCodes = getAllSubjectCodes();
     setForm({
       ...emptyForm,
-      semester: firstSubject ? firstSubject.semester : 1,
-      subjectId: firstSubject ? firstSubject.id : "",
+      subjectCode: allCodes[0] || "",
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.subjectId) {
+    if (!form.subjectCode) {
       setError("Select a subject first");
       return;
     }
@@ -182,28 +148,23 @@ export function ResourceManager() {
     const payload = {
       title: form.title.trim(),
       url: extractDriveId(form.url),
-      semester:
-        typeof form.semester === "number"
-          ? form.semester
-          : Number(form.semester),
-      subject: form.subjectId,
+      subjectCode: form.subjectCode,
       category: form.category,
     };
 
     try {
       if (editingId) {
-        const { error: updateError } = await supabase
-          .from("resources")
-          .update(payload)
-          .eq("id", editingId);
+        const result = await updateResourceAction(editingId, {
+          title: payload.title,
+          url: payload.url,
+          category: payload.category,
+        });
 
-        if (updateError) throw updateError;
+        if (!result.success) throw new Error(result.error);
       } else {
-        const { error: insertError } = await supabase
-          .from("resources")
-          .insert(payload);
+        const result = await createResourceAction(payload);
 
-        if (insertError) throw insertError;
+        if (!result.success) throw new Error(result.error);
       }
 
       await refreshData();
@@ -222,16 +183,15 @@ export function ResourceManager() {
     setForm({
       title: resource.title,
       url: resource.url,
-      semester: resource.semester,
-      subjectId: resource.subject,
-      category: resource.category as keyof EnabledCategories,
+      subjectCode: resource.subjectCode,
+      category: resource.category,
     });
     setError(null);
   };
 
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm(
-      "This will delete the resource. Continue?"
+      "This will delete the resource. Continue?",
     );
     if (!confirmed) return;
 
@@ -239,12 +199,9 @@ export function ResourceManager() {
     setError(null);
 
     try {
-      const { error: deleteError } = await supabase
-        .from("resources")
-        .delete()
-        .eq("id", id);
+      const result = await deleteResourceAction(id);
 
-      if (deleteError) throw deleteError;
+      if (!result.success) throw new Error(result.error);
       await refreshData();
       if (editingId === id) resetForm();
     } catch (err: unknown) {
@@ -255,11 +212,6 @@ export function ResourceManager() {
       setSaving(false);
     }
   };
-
-  const subjectOptionsForSemester = useMemo(
-    () => subjects.filter((s) => s.semester === form.semester),
-    [subjects, form.semester]
-  );
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -294,45 +246,23 @@ export function ResourceManager() {
             </div>
 
             <div className="space-y-2">
-              <Label>Semester</Label>
-              <Select
-                value={String(form.semester)}
-                onValueChange={(value) => updateForm("semester", Number(value))}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select semester" />
-                </SelectTrigger>
-                <SelectContent>
-                  {semesters.map((sem) => (
-                    <SelectItem key={sem} value={String(sem)}>
-                      Semester {sem}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label>Subject</Label>
               <Select
-                value={form.subjectId || "none"}
-                onValueChange={(value) => updateForm("subjectId", value)}
+                value={form.subjectCode || ""}
+                onValueChange={(value) => updateForm("subjectCode", value)}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  {subjectOptionsForSemester.length === 0 ? (
-                    <SelectItem value="none" disabled>
-                      No subjects for this semester
-                    </SelectItem>
-                  ) : (
-                    subjectOptionsForSemester.map((subj) => (
-                      <SelectItem key={subj.id} value={subj.id}>
-                        {subj.name}
+                  {allSubjectCodes.map((code) => {
+                    const subject = getSubjectByCode(code);
+                    return (
+                      <SelectItem key={code} value={code}>
+                        {subject?.title || code}
                       </SelectItem>
-                    ))
-                  )}
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -341,23 +271,17 @@ export function ResourceManager() {
               <Label>Category</Label>
               <Select
                 value={form.category}
-                onValueChange={(value) =>
-                  updateForm("category", value as keyof EnabledCategories)
-                }
+                onValueChange={(value) => updateForm("category", value)}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableCategories.length === 0 ? (
-                    <SelectItem value="notes">Notes</SelectItem>
-                  ) : (
-                    availableCategories.map((key) => (
-                      <SelectItem key={key} value={key}>
-                        {categoryLabels[key]}
-                      </SelectItem>
-                    ))
-                  )}
+                  {Object.entries(categoryLabels).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -396,20 +320,17 @@ export function ResourceManager() {
           ) : (
             <div className="space-y-3">
               {sortedResources.map((res) => {
-                const resSubject = subjects.find((s) => s.id === res.subject);
+                const subject = getSubjectByCode(res.subjectCode);
                 return (
                   <div key={res.id} className="rounded-lg border p-3 shadow-sm">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="font-semibold">{res.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          Semester {res.semester} ·{" "}
-                          {resSubject?.name || "Unknown"}
+                          {subject?.title || res.subjectCode}
                         </p>
                         <span className="mt-2 inline-block rounded-full bg-primary/10 px-2 py-1 text-xs">
-                          {categoryLabels[
-                            res.category as keyof EnabledCategories
-                          ] || res.category}
+                          {categoryLabels[res.category] || res.category}
                         </span>
                       </div>
                       <div className="flex flex-col gap-2">

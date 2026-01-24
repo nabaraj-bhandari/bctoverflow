@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, RotateCcw } from "lucide-react";
 import { cn, getGoogleDriveDownloadUrl } from "@/lib/utils";
 import { Resource } from "@/lib/types";
 import { usePdfFile } from "@/hooks/usePdfFile";
@@ -62,7 +62,7 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
     [resource.id, downloadUrl]
   );
 
-  const { memoizedFile, loading, error, setError, setLoading } = usePdfFile(
+  const { memoizedFile, loading, error, setError, setLoading, clearCache } = usePdfFile(
     proxyUrl,
     cacheKey
   );
@@ -134,8 +134,15 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
         )}
 
         {error && (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-sm text-white/80">
+          <div className="flex h-full flex-col items-center justify-center gap-4 text-sm text-white/80">
             <p>{error}</p>
+            <button
+              onClick={clearCache}
+              className="flex items-center gap-2 rounded-md border border-white/20 bg-white/10 px-3 py-2 transition hover:bg-white/20"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Refresh Cache
+            </button>
           </div>
         )}
 

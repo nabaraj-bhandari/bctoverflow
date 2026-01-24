@@ -6,6 +6,7 @@ export function usePdfFile(proxyUrl: string | null, cacheKey: string) {
   const [fileData, setFileData] = useState<ArrayBuffer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const fileCache = useMemo(() => {
     if (typeof window === "undefined") return null;
@@ -94,12 +95,26 @@ export function usePdfFile(proxyUrl: string | null, cacheKey: string) {
 
     loadFile();
     return () => controller.abort();
-  }, [cacheApiAvailable, cacheKey, fileCache, fileData, loading, proxyUrl]);
+  }, [cacheApiAvailable, cacheKey, fileCache, fileData, loading, proxyUrl, refreshKey]);
 
   const memoizedFile = useMemo(() => {
     if (!fileData) return null;
     return { data: new Uint8Array(fileData.slice(0)) };
   }, [fileData]);
 
-  return { memoizedFile, loading, error, setError, setLoading };
+  const clearCache = async () => {
+    if (fileCache) {
+      fileCache.delete(cacheKey);
+    }
+    if (cacheApiAvailable && proxyUrl) {
+      const cache = await caches.open(cacheApiName);
+      await cache.delete(proxyUrl);
+    }
+    setFileData(null);
+    setLoading(true);
+    setError(null);
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  return { memoizedFile, loading, error, setError, setLoading, clearCache };
 }

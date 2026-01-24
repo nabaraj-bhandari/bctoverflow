@@ -1,16 +1,15 @@
+import { semesters } from "@/data/subjects";
 import Link from "next/link";
 
 export default function Home() {
-  const semesters = Array.from({ length: 8 }, (_, i) => i + 1);
-
   return (
-    <div className="container mx-auto max-w-4xl p-4">
+    <div className="container mx-auto max-w-4xl p-4 space-y-4">
       <header className="text-center mb-4">
         <h1 className="text-xl font-bold text-primary">Choose Your Semester</h1>
       </header>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {semesters.map((num) => (
+        {semesters.map((num: number) => (
           <Link
             key={num}
             href={`/${num}`}
@@ -23,9 +22,24 @@ export default function Home() {
               text-center font-semibold text-primary
             "
           >
-            Semester {num}
+            {`Semester ${num}`}
           </Link>
         ))}
+      </div>
+
+      <div>
+        <Link
+          href={"/course"}
+          className="
+              group flex items-center justify-center
+              h-12 rounded-xl bg-card/60 border border-border
+              shadow-md transition-transform
+              hover:scale-102
+              text-center font-semibold text-primary
+            "
+        >
+          View Course Structure
+        </Link>
       </div>
     </div>
   );

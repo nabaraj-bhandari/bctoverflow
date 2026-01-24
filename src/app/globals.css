@@ -39,3 +39,11 @@ body {
   color: var(--color-foreground);
   background-color: var(--color-background);
 }
+
+.th {
+  @apply border px-3 py-2 text-center font-semibold;
+}
+
+.td {
+  @apply border px-3 py-2 text-center;
+}

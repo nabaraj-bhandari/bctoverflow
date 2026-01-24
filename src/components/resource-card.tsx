@@ -1,5 +1,3 @@
-"use client";
-
 import { Card } from "@/components/ui/card";
 import { Resource } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -21,7 +19,6 @@ export function ResourceCard({ resource, onView }: ResourceCardProps) {
       "bg-green-900/20",
       "bg-teal-900/20",
     ];
-    // Simple hash to get a consistent color for each resource
     const hash = id
       .split("")
       .reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -29,34 +26,26 @@ export function ResourceCard({ resource, onView }: ResourceCardProps) {
   };
 
   return (
-    <div className="group relative aspect-[3/4] w-full">
+    <div className="group relative aspect-3/4 w-full">
       <Card
         className={cn(
-          "h-full w-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 cursor-pointer flex flex-col justify-center items-center p-4 text-center",
-          getBackgroundColor(resource.id)
+          "h-full w-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 cursor-pointer relative",
+          "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950",
+          getBackgroundColor(resource.id),
         )}
         onClick={onView}
       >
-        <div className="relative flex-grow w-full">
-          <div
-            className={cn(
-              "absolute inset-0 flex flex-col overflow-hidden rounded-lg border border-white/5 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white",
-              getBackgroundColor(resource.id)
-            )}
-          >
-            <div className="grid flex-1 grid-cols-4 gap-1 p-3 opacity-80">
-              {Array.from({ length: 16 }).map((_, idx) => (
-                <span
-                  key={idx}
-                  className="h-2 rounded-sm bg-white/10 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]"
-                />
-              ))}
-            </div>
-            <div className="relative bg-black/40 px-3 py-2 backdrop-blur-sm">
-              <p className="line-clamp-3 text-sm font-semibold leading-snug">
-                {resource.title}
-              </p>
-            </div>
+        <div className="relative h-full flex flex-col justify-between text-center">
+          <div className="bg-black/40 px-3 py-2 backdrop-blur-sm">
+            <p className="line-clamp-3 text-sm font-semibold leading-snug">
+              {resource.title}
+            </p>
+          </div>
+
+          <div className="bg-black/40 px-3 py-2 backdrop-blur-sm border-t border-white/5">
+            <p className="text-sm font-semibold leading-snug">
+              {resource.category.toUpperCase()}
+            </p>
           </div>
         </div>
       </Card>

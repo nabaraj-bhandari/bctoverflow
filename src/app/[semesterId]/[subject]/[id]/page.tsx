@@ -1,25 +1,23 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import PdfRouteClient from "./page.client";
-import { getResources } from "@/lib/supabase";
 import { extractGoogleDriveId } from "@/lib/utils";
-import type { EnabledCategories } from "@/lib/types";
+import { getResourcesBySubjectCode } from "@/app/admin/actions/resources";
+import type { Categories } from "@/lib/types";
 
-export default function PdfRoutePage({
+export default async function PdfRoutePage({
   params: paramsPromise,
 }: {
   params: Promise<{
     semesterId: string;
     subject: string;
-    category: keyof EnabledCategories;
+    category: keyof Categories;
     id: string;
   }>;
 }) {
-  const params = React.use(paramsPromise);
+  const params = await paramsPromise;
 
-  const [resourceList] = React.use(
-    Promise.all([getResources(params.subject, params.category)])
-  ) as [Awaited<ReturnType<typeof getResources>>];
+  const resourceList = await getResourcesBySubjectCode(params.subject);
 
   const resource = resourceList?.find((r) => {
     const driveId = extractGoogleDriveId(r.url);
