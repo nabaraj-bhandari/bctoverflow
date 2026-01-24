@@ -1,8 +1,6 @@
 export type Subject = {
-  id: string;
-  name: string;
-  slug: string;
-  semester: number;
+  code: string;
+  title: string;
 };
 
 export type Resource = {

@@ -62,6 +62,7 @@ const getAllSubjectCodes = () => {
 };
 
 export function ResourceManager() {
+  const [mounted, setMounted] = useState(false);
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -113,6 +114,7 @@ export function ResourceManager() {
   }, [form.subjectCode]);
 
   useEffect(() => {
+    setMounted(true);
     void refreshData();
   }, [refreshData]);
 
@@ -212,6 +214,10 @@ export function ResourceManager() {
       setSaving(false);
     }
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

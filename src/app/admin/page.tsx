@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,14 +17,18 @@ const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin";
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isAuthed, setIsAuthed] = useState(() => {
-    if (typeof window === "undefined") return false;
+  const [mounted, setMounted] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  useEffect(() => {
     try {
-      return sessionStorage.getItem("bct-overflow-admin") === "true";
+      const authed = sessionStorage.getItem("bct-overflow-admin") === "true";
+      setIsAuthed(authed);
     } catch {
-      return false;
+      setIsAuthed(false);
     }
-  });
+    setMounted(true);
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +46,10 @@ export default function AdminLoginPage() {
       setError("Incorrect password.");
     }
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   if (isAuthed) {
     return <AdminDashboardContent />;
