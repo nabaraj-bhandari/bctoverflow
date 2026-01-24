@@ -4,18 +4,28 @@ import { prisma } from "@/lib/prisma";
 import { Resource } from "@/lib/types";
 
 export async function getAllResources(): Promise<Resource[]> {
-    const resources = await prisma.resource.findMany({
-        orderBy: { createdAt: "desc" },
-    });
-    return resources;
+    try {
+        const resources = await prisma.resource.findMany({
+            orderBy: { createdAt: "desc" },
+        });
+        return resources;
+    } catch (error) {
+        console.error("[getAllResources] Error:", error);
+        throw new Error(`Failed to fetch resources: ${error instanceof Error ? error.message : String(error)}`);
+    }
 }
 
 export async function getResourcesBySubjectCode(subjectCode: string): Promise<Resource[]> {
-    const resources = await prisma.resource.findMany({
-        where: { subjectCode },
-        orderBy: { createdAt: "desc" },
-    });
-    return resources;
+    try {
+        const resources = await prisma.resource.findMany({
+            where: { subjectCode },
+            orderBy: { createdAt: "desc" },
+        });
+        return resources;
+    } catch (error) {
+        console.error("[getResourcesBySubjectCode] Error for subject", subjectCode, ":", error);
+        throw new Error(`Failed to fetch resources: ${error instanceof Error ? error.message : String(error)}`);
+    }
 }
 
 export async function createResourceAction(data: {

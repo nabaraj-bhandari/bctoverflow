@@ -1,5 +1,6 @@
 import { semesters } from "@/data/subjects";
 import Link from "next/link";
+import { FaDiscord } from "react-icons/fa";
 
 export default function Home() {
   return (
@@ -41,6 +42,19 @@ export default function Home() {
           View Course Structure
         </Link>
       </div>
+      <Link
+        href={"https://discord.gg/ynzewN9w"}
+        className="
+              group flex items-center justify-center gap-2
+              h-12 rounded-xl bg-card/60 border border-border
+              shadow-md transition-transform
+              hover:scale-102
+              text-center font-semibold text-primary
+            "
+      >
+        <FaDiscord className="text-2xl" />
+        Join Discord Community
+      </Link>
     </div>
   );
 }
