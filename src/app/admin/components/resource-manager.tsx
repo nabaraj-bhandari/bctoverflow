@@ -93,11 +93,7 @@ export function ResourceManager() {
     setLoading(true);
     setError(null);
     try {
-      console.log("[ResourceManager] Fetching resources...");
-      const startTime = Date.now();
       const data = await getAllResources();
-      const duration = Date.now() - startTime;
-      console.log(`[ResourceManager] Fetched ${data.length} resources in ${duration}ms`);
       setResources(data);
 
       // Set default subject on first load
@@ -111,7 +107,6 @@ export function ResourceManager() {
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to load resources";
-      console.error("[ResourceManager] Error fetching resources:", err);
       setError(message);
     } finally {
       setLoading(false);

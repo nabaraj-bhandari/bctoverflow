@@ -11,9 +11,7 @@ export default async function ResourcesPage({
   }>;
 }) {
   const params = await paramsPromise;
-  console.log("[ResourcesPage] Fetching resources for subject:", params.subject);
   const resources = await getResourcesBySubjectCode(params.subject);
-  console.log("[ResourcesPage] Got resources:", resources.length);
 
   return (
     <ResourcesPageClient
