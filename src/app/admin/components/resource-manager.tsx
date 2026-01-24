@@ -39,7 +39,7 @@ const extractDriveId = (link: string): string => {
     if (match?.[1]) return match[1];
     const idParam = url.searchParams.get("id");
     if (idParam) return idParam;
-  } catch { }
+  } catch {}
   return trimmed;
 };
 
@@ -61,49 +61,66 @@ const getAllSubjectCodes = () => {
   return codes;
 };
 
+const STORAGE_KEY = "selected-subject-code";
+
 export function ResourceManager() {
   const [mounted, setMounted] = useState(false);
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string>("");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   type FormState = {
     title: string;
     url: string;
-    subjectCode: string;
     category: string;
   };
 
   const emptyForm: FormState = {
     title: "",
     url: "",
-    subjectCode: "",
     category: "notes",
   };
 
   const [form, setForm] = useState<FormState>(emptyForm);
 
-  const updateForm = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+  const updateForm = <K extends keyof FormState>(
+    key: K,
+    value: FormState[K],
+  ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
+  // Load previously selected subject from localStorage
+  useEffect(() => {
+    setMounted(true);
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const allCodes = getAllSubjectCodes();
+
+    if (saved && allCodes.includes(saved)) {
+      setSelectedSubject(saved);
+    } else if (allCodes.length > 0) {
+      setSelectedSubject(allCodes[0]);
+    }
+  }, []);
+
+  // Save selected subject to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedSubject) {
+      localStorage.setItem(STORAGE_KEY, selectedSubject);
+    }
+  }, [selectedSubject]);
+
   const refreshData = useCallback(async () => {
+    if (!selectedSubject) return;
+
     setLoading(true);
     setError(null);
     try {
       const data = await getAllResources();
       setResources(data);
-
-      // Set default subject on first load
-      const allCodes = getAllSubjectCodes();
-      if (!form.subjectCode && allCodes.length > 0) {
-        setForm((prev) => ({
-          ...prev,
-          subjectCode: allCodes[0],
-        }));
-      }
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to load resources";
@@ -111,35 +128,37 @@ export function ResourceManager() {
     } finally {
       setLoading(false);
     }
-  }, [form.subjectCode]);
+  }, [selectedSubject]);
 
   useEffect(() => {
-    setMounted(true);
-    void refreshData();
-  }, [refreshData]);
+    if (selectedSubject) {
+      void refreshData();
+    }
+  }, [selectedSubject, refreshData]);
 
-  const sortedResources = useMemo(
+  const filteredResources = useMemo(
     () =>
-      [...resources].sort(
-        (a, b) => a.subjectCode.localeCompare(b.subjectCode) || a.title.localeCompare(b.title),
-      ),
-    [resources],
+      resources
+        .filter((r) => r.subjectCode === selectedSubject)
+        .sort((a, b) => a.title.localeCompare(b.title)),
+    [resources, selectedSubject],
   );
 
   const allSubjectCodes = useMemo(() => getAllSubjectCodes(), []);
 
   const resetForm = () => {
     setEditingId(null);
-    const allCodes = getAllSubjectCodes();
-    setForm({
-      ...emptyForm,
-      subjectCode: allCodes[0] || "",
-    });
+    setForm(emptyForm);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.subjectCode) {
+  const handleSubjectChange = (code: string) => {
+    setSelectedSubject(code);
+    resetForm();
+    setError(null);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedSubject) {
       setError("Select a subject first");
       return;
     }
@@ -150,7 +169,7 @@ export function ResourceManager() {
     const payload = {
       title: form.title.trim(),
       url: extractDriveId(form.url),
-      subjectCode: form.subjectCode,
+      subjectCode: selectedSubject,
       category: form.category,
     };
 
@@ -185,7 +204,6 @@ export function ResourceManager() {
     setForm({
       title: resource.title,
       url: resource.url,
-      subjectCode: resource.subjectCode,
       category: resource.category,
     });
     setError(null);
@@ -219,162 +237,172 @@ export function ResourceManager() {
     return null;
   }
 
+  const currentSubject = getSubjectByCode(selectedSubject);
+
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <Card className="lg:col-span-1">
+    <div className="space-y-4">
+      <Card>
         <CardHeader>
-          <CardTitle>
-            {editingId ? "Edit Resource" : "Create Resource"}
-          </CardTitle>
+          <CardTitle>Select Subject</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={form.title}
-                onChange={(e) => updateForm("title", e.target.value)}
-                placeholder="Resource title"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="url">Google Drive Link or ID</Label>
-              <Input
-                id="url"
-                value={form.url}
-                onChange={(e) => updateForm("url", e.target.value)}
-                placeholder="Paste Drive link or file ID"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Subject</Label>
-              <Select
-                value={form.subjectCode || ""}
-                onValueChange={(value) => updateForm("subjectCode", value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allSubjectCodes.map((code) => {
-                    const subject = getSubjectByCode(code);
-                    return (
-                      <SelectItem key={code} value={code}>
-                        {subject?.title || code}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Category</Label>
-              <Select
-                value={form.category}
-                onValueChange={(value) => updateForm("category", value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(categoryLabels).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <div className="flex gap-2">
-              <Button type="submit" disabled={saving} className="flex-1">
-                {saving ? "Saving..." : editingId ? "Update" : "Create"}
-              </Button>
-              {editingId && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={resetForm}
-                  disabled={saving}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card className="lg:col-span-2">
-        <CardHeader>
-          <CardTitle>Resources</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {loading ? (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Loading resources...
-              </p>
-              <p className="text-xs text-muted-foreground">
-                This may take a moment on first load.
-              </p>
-            </div>
-          ) : sortedResources.length === 0 ? (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">No resources found.</p>
-              {error && (
-                <p className="text-xs text-destructive">Error: {error}</p>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {sortedResources.map((res) => {
-                const subject = getSubjectByCode(res.subjectCode);
+          <Select value={selectedSubject} onValueChange={handleSubjectChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Choose a subject to manage" />
+            </SelectTrigger>
+            <SelectContent>
+              {allSubjectCodes.map((code) => {
+                const subject = getSubjectByCode(code);
                 return (
-                  <div key={res.id} className="rounded-lg border p-3 shadow-sm">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-semibold">{res.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {subject?.title || res.subjectCode}
-                        </p>
-                        <span className="mt-2 inline-block rounded-full bg-primary/10 px-2 py-1 text-xs">
-                          {categoryLabels[res.category] || res.category}
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(res)}
-                          disabled={saving}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDelete(res.id)}
-                          disabled={saving}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <SelectItem key={code} value={code}>
+                    {subject?.title || code}
+                  </SelectItem>
                 );
               })}
-            </div>
+            </SelectContent>
+          </Select>
+          {currentSubject && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Managing resources for:{" "}
+              <span className="font-semibold">{currentSubject.title}</span>
+            </p>
           )}
         </CardContent>
       </Card>
+
+      {selectedSubject && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <Card className="lg:col-span-1">
+            <CardHeader>
+              <CardTitle>
+                {editingId ? "Edit Resource" : "Add Resource"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    value={form.title}
+                    onChange={(e) => updateForm("title", e.target.value)}
+                    placeholder="Resource title"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="url">Google Drive Link or ID</Label>
+                  <Input
+                    id="url"
+                    value={form.url}
+                    onChange={(e) => updateForm("url", e.target.value)}
+                    placeholder="Paste Drive link or file ID"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select
+                    value={form.category}
+                    onValueChange={(value) => updateForm("category", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(categoryLabels).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {error && <p className="text-sm text-destructive">{error}</p>}
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={saving}
+                    className="flex-1"
+                  >
+                    {saving ? "Saving..." : editingId ? "Update" : "Create"}
+                  </Button>
+                  {editingId && (
+                    <Button
+                      variant="secondary"
+                      onClick={resetForm}
+                      disabled={saving}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Resources ({filteredResources.length})</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {loading ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Loading resources...
+                  </p>
+                </div>
+              ) : filteredResources.length === 0 ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    No resources found for this subject.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Add your first resource using the form on the left.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredResources.map((res) => (
+                    <div
+                      key={res.id}
+                      className="rounded-lg border p-3 shadow-sm"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="font-semibold">{res.title}</p>
+                          <span className="mt-2 inline-block rounded-full bg-primary/10 px-2 py-1 text-xs">
+                            {categoryLabels[res.category] || res.category}
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(res)}
+                            disabled={saving}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDelete(res.id)}
+                            disabled={saving}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

@@ -19,7 +19,7 @@ export default function Home() {
               h-28 rounded-xl
               bg-card/60 backdrop-blur-md border border-border
               shadow-md transition-transform
-              hover:scale-105 hover:shadow-lg
+              hover:scale-102 hover:shadow-lg
               text-center font-semibold text-primary
             "
           >
@@ -35,7 +35,7 @@ export default function Home() {
               group flex items-center justify-center
               h-12 rounded-xl bg-card/60 border border-border
               shadow-md transition-transform
-              hover:scale-102
+              hover:scale-101
               text-center font-semibold text-primary
             "
         >
@@ -48,7 +48,7 @@ export default function Home() {
               group flex items-center justify-center gap-2
               h-12 rounded-xl bg-card/60 border border-border
               shadow-md transition-transform
-              hover:scale-102
+              hover:scale-101
               text-center font-semibold text-primary
             "
       >
