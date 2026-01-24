@@ -18,14 +18,14 @@ export async function getResourcesBySubjectCode(subjectCode: string): Promise<Re
         orderBy: { createdAt: "desc" },
     });
     console.log(`[getResourcesBySubjectCode] Found ${resources.length} resources for ${subjectCode}`);
-    
+
     // Debug: show all available subject codes
     if (resources.length === 0) {
         const allResources = await prisma.resource.findMany({ orderBy: { createdAt: "desc" } });
         const uniqueCodes = new Set(allResources.map(r => r.subjectCode));
         console.log(`[getResourcesBySubjectCode] Available codes in DB:`, Array.from(uniqueCodes));
     }
-    
+
     return resources;
 }
 
