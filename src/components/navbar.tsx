@@ -9,7 +9,7 @@ export default function Navbar() {
         className="flex justify-center items-center select-none gap-2"
       >
         <Image
-          src={"/logo2.png"}
+          src={"/logo.png"}
           alt="BCT Overflow"
           width={32}
           height={32}
