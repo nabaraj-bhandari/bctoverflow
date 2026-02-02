@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Resource } from "@/lib/types";
+import { Resource } from "../../../lib/types";
 import { ResourceCard } from "@/components/resource-card";
 import { Loader2 } from "lucide-react";
-import { extractGoogleDriveId } from "@/lib/utils";
+import { extractGoogleDriveId } from "../../../lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface ResourcesPageClientProps {
@@ -42,7 +42,9 @@ export default function ResourcesPageClient({
   }, [resources, selectedCategory]);
 
   const availableCategories = useMemo(() => {
-    const categories: { label: string; value: string | null }[] = [{ label: "All", value: null }];
+    const categories: { label: string; value: string | null }[] = [
+      { label: "All", value: null },
+    ];
     const uniqueCategories = new Set(resources.map((r) => r.category));
 
     CATEGORIES.slice(1).forEach((category) => {
@@ -70,7 +72,9 @@ export default function ResourcesPageClient({
           {availableCategories.map((category) => (
             <Button
               key={category.value || "all"}
-              variant={selectedCategory === category.value ? "default" : "outline"}
+              variant={
+                selectedCategory === category.value ? "default" : "outline"
+              }
               size="sm"
               onClick={() => setSelectedCategory(category.value)}
               className="rounded-full"

@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { Resource } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { Resource } from "../lib/types";
+import { cn } from "../lib/utils";
 
 interface ResourceCardProps {
   resource: Resource;

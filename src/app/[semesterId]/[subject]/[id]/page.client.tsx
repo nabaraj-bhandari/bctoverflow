@@ -1,7 +1,7 @@
 "use client";
 
 import PdfViewer from "@/components/pdf-viewer";
-import { Resource } from "@/lib/types";
+import { Resource } from "../../../../lib/types";
 import { useRouter } from "next/navigation";
 import { useRef as reactUseRef } from "react";
 

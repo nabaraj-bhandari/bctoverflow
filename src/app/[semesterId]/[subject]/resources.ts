@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "../../../lib/prisma";
 
 export async function getResourcesBySubjectCode(subjectCode: string) {
   try {
@@ -52,7 +52,7 @@ export async function updateResource(
     title?: string;
     category?: string;
     url?: string;
-  }
+  },
 ) {
   try {
     const resource = await prisma.resource.update({

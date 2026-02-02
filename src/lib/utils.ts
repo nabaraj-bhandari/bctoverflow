@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function extractGoogleDriveId(
-  input: string | null | undefined
+  input: string | null | undefined,
 ): string | null {
   if (!input) return null;
   const trimmed = input.trim();
@@ -35,4 +35,12 @@ export function getGoogleDriveEmbedUrl(input: string): string | null {
 export function getGoogleDriveDownloadUrl(input: string): string | null {
   const id = extractGoogleDriveId(input);
   return id ? `https://drive.google.com/uc?export=download&id=${id}` : null;
+}
+
+export function slugify(input: string) {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-");
 }

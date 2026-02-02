@@ -1,27 +1,36 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+}
+
+model Subject {
+  code      String     @id
+  resources Resource[]
 }
 
 model Resource {
-  id          String   @id @default(cuid())
+  id          String
   subjectCode String
   title       String
-  category    String
-  url         String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  githubPath  String
 
-  @@index([subjectCode])
+  sections    Section[]
+  subject     Subject   @relation(fields: [subjectCode], references: [code])
+
+  @@id([subjectCode, id])
+}
+
+model Section {
+  id          String
+  resourceId  String
+  subjectCode String
+  title       String
+  checksum    String
+  resource    Resource @relation(fields: [subjectCode, resourceId], references: [subjectCode, id])
+
+  @@id([subjectCode, resourceId, id])
 }

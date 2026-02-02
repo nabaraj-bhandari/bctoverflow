@@ -11,8 +11,8 @@ import {
 } from "react";
 
 import { Loader2, X, RotateCcw } from "lucide-react";
-import { cn, getGoogleDriveDownloadUrl } from "@/lib/utils";
-import { Resource } from "@/lib/types";
+import { cn, getGoogleDriveDownloadUrl } from "../lib/utils";
+import { Resource } from "../lib/types";
 import { usePdfFile } from "@/hooks/usePdfFile";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import type { DocumentProps, PageProps } from "react-pdf";
@@ -46,7 +46,7 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
 
   const downloadUrl = useMemo(
     () => getGoogleDriveDownloadUrl(resource.url) || resource.url,
-    [resource.url]
+    [resource.url],
   );
 
   const proxyUrl = useMemo(
@@ -54,18 +54,16 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
       downloadUrl
         ? `/api/pdf-proxy?file=${encodeURIComponent(downloadUrl)}`
         : null,
-    [downloadUrl]
+    [downloadUrl],
   );
 
   const cacheKey = useMemo(
     () => resource.id || downloadUrl || "unknown",
-    [resource.id, downloadUrl]
+    [resource.id, downloadUrl],
   );
 
-  const { memoizedFile, loading, error, setError, setLoading, clearCache } = usePdfFile(
-    proxyUrl,
-    cacheKey
-  );
+  const { memoizedFile, loading, error, setError, setLoading, clearCache } =
+    usePdfFile(proxyUrl, cacheKey);
 
   useEffect(() => {
     loadedPagesRef.current = null;
@@ -118,7 +116,7 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
           type="button"
           onClick={onClose}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-md border border-white/20 text-white transition hover:border-white/40 hover:bg-white/10"
+            "flex h-8 w-8 items-center justify-center rounded-md border border-white/20 text-white transition hover:border-white/40 hover:bg-white/10",
           )}
           aria-label="Close PDF viewer"
         >
