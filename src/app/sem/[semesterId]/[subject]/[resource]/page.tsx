@@ -12,7 +12,7 @@ export default async function ResourcesPage({
   const { resource } = await params;
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/resource?id=${resource}`,
-    { cache: "no-store" },
+    { next: { revalidate: 3600 } },
   );
   const sections: Section[] = await res.json();
 
