@@ -23,7 +23,7 @@ export default function SubjectsPage({
       {subjects.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {subjects.map((subject: Subject) => (
-            <Link key={subject.code} href={`/${semester}/${subject.code}`}>
+            <Link key={subject.code} href={`/sem/${semester}/${subject.code}`}>
               <Card className="h-full transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20">
                 <CardHeader className="flex flex-row items-center gap-4">
                   <div className="rounded-full bg-primary/10 p-3">

@@ -3,7 +3,7 @@ import { Construction } from "lucide-react";
 import Link from "next/link";
 import { FaDiscord } from "react-icons/fa";
 
-const isDevelopment = true;
+const isDevelopment = false;
 
 export default function Home() {
   return (
@@ -27,7 +27,7 @@ export default function Home() {
             {semesters.map((num: number) => (
               <Link
                 key={num}
-                href={`/${num}`}
+                href={`/sem/${num}`}
                 className="
               group flex items-center justify-center
               h-28 rounded-xl

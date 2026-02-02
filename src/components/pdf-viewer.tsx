@@ -11,25 +11,27 @@ import {
 } from "react";
 
 import { Loader2, X, RotateCcw } from "lucide-react";
-import { cn, getGoogleDriveDownloadUrl } from "../lib/utils";
-import { Resource } from "../lib/types";
-import { usePdfFile } from "@/hooks/usePdfFile";
+import { cn } from "../lib/utils";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import type { DocumentProps, PageProps } from "react-pdf";
 
 const RENDER_TEXT = false;
 const RENDER_ANNOTATIONS = false;
+
 interface PdfViewerProps {
-  resource: Resource;
+  url: string;
+  title: string;
   onClose: () => void;
 }
 
-export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
+export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
   const [PDFDocument, setPDFDocument] =
     useState<ComponentType<DocumentProps> | null>(null);
   const [PDFPage, setPDFPage] = useState<ComponentType<PageProps> | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
   const [pageWidth, setPageWidth] = useState<number>(960);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const loadedPagesRef = useRef<number | null>(null);
 
   // Client-only dynamic import
@@ -37,37 +39,23 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
     (async () => {
       const pdfModule = await import("react-pdf");
       const { pdfjs } = pdfModule;
-      pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.react-pdf.min.mjs";
+      pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
       setPDFDocument(() => pdfModule.Document);
       setPDFPage(() => pdfModule.Page);
     })();
   }, []);
 
-  const downloadUrl = useMemo(
-    () => getGoogleDriveDownloadUrl(resource.url) || resource.url,
-    [resource.url],
-  );
-
   const proxyUrl = useMemo(
-    () =>
-      downloadUrl
-        ? `/api/pdf-proxy?file=${encodeURIComponent(downloadUrl)}`
-        : null,
-    [downloadUrl],
+    () => (url ? `/api/pdf?url=${encodeURIComponent(url)}` : null),
+    [url],
   );
-
-  const cacheKey = useMemo(
-    () => resource.id || downloadUrl || "unknown",
-    [resource.id, downloadUrl],
-  );
-
-  const { memoizedFile, loading, error, setError, setLoading, clearCache } =
-    usePdfFile(proxyUrl, cacheKey);
 
   useEffect(() => {
     loadedPagesRef.current = null;
     setNumPages(0);
+    setLoading(true);
+    setError(null);
   }, [proxyUrl]);
 
   useEffect(() => {
@@ -85,6 +73,14 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
     if (loadedPagesRef.current === pdf.numPages) return;
     loadedPagesRef.current = pdf.numPages;
     setNumPages(pdf.numPages);
+    setLoading(false);
+  }, []);
+
+  const clearCache = useCallback(() => {
+    setError(null);
+    setLoading(true);
+    setNumPages(0);
+    loadedPagesRef.current = null;
   }, []);
 
   const pages = useMemo(() => {
@@ -110,7 +106,7 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
     <div className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm overscroll-none">
       <header className="flex items-center justify-between gap-3 border-b border-white/10 bg-black/70 px-4 py-2 text-white">
         <div className="min-w-0">
-          <p className="truncate text-lg font-semibold">{resource.title}</p>
+          <p className="truncate text-lg font-semibold">{title}</p>
         </div>
         <button
           type="button"
@@ -144,9 +140,9 @@ export default function PdfViewer({ resource, onClose }: PdfViewerProps) {
           </div>
         )}
 
-        {proxyUrl && !error && memoizedFile && (
+        {proxyUrl && !error && (
           <PDFDocument
-            file={memoizedFile}
+            file={proxyUrl}
             onLoadSuccess={handleLoadSuccess}
             onLoadError={(err: unknown) => {
               console.error(err);

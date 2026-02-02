@@ -27,7 +27,7 @@ export const semesters: Semester[] = [
     totalMarks: 675,
     subjects: [
       {
-        code: "ENSH_101",
+        code: "ENSH101",
         title: "Engineering Mathematics I",
         examType: "T",
         theoryAss: 40,
@@ -35,7 +35,7 @@ export const semesters: Semester[] = [
         total: 100,
       },
       {
-        code: "ENCT_101",
+        code: "ENCT101",
         title: "Computer Programming",
         examType: "B",
         theoryAss: 40,
@@ -44,7 +44,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENME_101",
+        code: "ENME101",
         title: "Engineering Drawing",
         examType: "B",
         theoryAss: 20,
@@ -53,7 +53,7 @@ export const semesters: Semester[] = [
         total: 100,
       },
       {
-        code: "ENEX_101",
+        code: "ENEX101",
         title: "Fundamental of Electrical and Electronics Engineering",
         examType: "B",
         theoryFinal: 60,
@@ -61,7 +61,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENSH_102",
+        code: "ENSH102",
         title: "Engineering Physics",
         examType: "B",
         theoryFinal: 60,
@@ -69,7 +69,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENME_106",
+        code: "ENME106",
         title: "Engineering Workshop",
         examType: "P",
         theoryAss: 20,
@@ -85,7 +85,7 @@ export const semesters: Semester[] = [
     totalMarks: 800,
     subjects: [
       {
-        code: "ENSH_151",
+        code: "ENSH151",
         title: "Engineering Mathematics II",
         examType: "T",
         theoryAss: 40,
@@ -93,7 +93,7 @@ export const semesters: Semester[] = [
         total: 100,
       },
       {
-        code: "ENCT_151",
+        code: "ENCT151",
         title: "Object Oriented Programming",
         examType: "B",
         theoryAss: 40,
@@ -102,7 +102,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENEX_152",
+        code: "ENEX152",
         title: "Digital Logic",
         examType: "B",
         theoryAss: 40,
@@ -111,7 +111,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENEX_151",
+        code: "ENEX151",
         title: "Electronic Device and Circuits",
         examType: "B",
         theoryFinal: 60,
@@ -119,7 +119,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENSH_153",
+        code: "ENSH153",
         title: "Engineering Chemistry",
         examType: "B",
         theoryAss: 40,
@@ -128,7 +128,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENEE_154",
+        code: "ENEE154",
         title: "Electrical Circuits and Machines",
         examType: "B",
         theoryAss: 40,
@@ -145,7 +145,7 @@ export const semesters: Semester[] = [
     totalMarks: 775,
     subjects: [
       {
-        code: "ENSH_201",
+        code: "ENSH201",
         title: "Engineering Mathematics III",
         examType: "T",
         theoryAss: 40,
@@ -153,7 +153,7 @@ export const semesters: Semester[] = [
         total: 100,
       },
       {
-        code: "ENSH_204",
+        code: "ENSH204",
         title: "Communication English",
         examType: "B",
         theoryAss: 40,
@@ -162,7 +162,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_201",
+        code: "ENCT201",
         title: "Computer Graphics and Visualization",
         examType: "B",
         theoryAss: 40,
@@ -171,7 +171,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENCT_202",
+        code: "ENCT202",
         title: "Foundation of Data Science",
         examType: "B",
         theoryAss: 40,
@@ -180,7 +180,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENCT_203",
+        code: "ENCT203",
         title: "Theory of Computation",
         examType: "T",
         theoryAss: 40,
@@ -188,7 +188,7 @@ export const semesters: Semester[] = [
         total: 100,
       },
       {
-        code: "ENEX_201",
+        code: "ENEX201",
         title: "Microprocessors",
         examType: "B",
         theoryAss: 40,
@@ -205,7 +205,7 @@ export const semesters: Semester[] = [
     totalMarks: 800,
     subjects: [
       {
-        code: "ENSH_252",
+        code: "ENSH252",
         title: "Numerical Methods",
         examType: "B",
         theoryAss: 40,
@@ -214,7 +214,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENEX_252",
+        code: "ENEX252",
         title: "Instrumentation",
         examType: "B",
         theoryAss: 40,
@@ -223,7 +223,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENEX_254",
+        code: "ENEX254",
         title: "Electromagnetics",
         examType: "B",
         theoryAss: 40,
@@ -232,7 +232,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_252",
+        code: "ENCT252",
         title: "Data Structure and Algorithm",
         examType: "B",
         theoryFinal: 60,
@@ -240,7 +240,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENCT_253",
+        code: "ENCT253",
         title: "Data Communication",
         examType: "B",
         theoryAss: 40,
@@ -249,7 +249,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_254",
+        code: "ENCT254",
         title: "Operating System",
         examType: "B",
         theoryAss: 40,
@@ -266,7 +266,7 @@ export const semesters: Semester[] = [
     totalMarks: 800,
     subjects: [
       {
-        code: "ENSH_304",
+        code: "ENSH304",
         title: "Probability and Statistics",
         examType: "T",
         theoryAss: 40,
@@ -274,7 +274,7 @@ export const semesters: Semester[] = [
         total: 100,
       },
       {
-        code: "ENCT_301",
+        code: "ENCT301",
         title: "Database Management System",
         examType: "B",
         theoryAss: 40,
@@ -283,7 +283,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENCT_302",
+        code: "ENCT302",
         title: "Web Application Programming",
         examType: "B",
         theoryAss: 40,
@@ -292,7 +292,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENCT_303",
+        code: "ENCT303",
         title: "Computer Organization and Architecture",
         examType: "B",
         theoryAss: 40,
@@ -301,7 +301,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_304",
+        code: "ENCT304",
         title: "Computer Networks",
         examType: "B",
         theoryAss: 40,
@@ -310,7 +310,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENCT_325-344",
+        code: "ENCT325-344",
         title: "Elective I",
         examType: "B",
         theoryAss: 40,
@@ -327,7 +327,7 @@ export const semesters: Semester[] = [
     totalMarks: 675,
     subjects: [
       {
-        code: "ENCE_356",
+        code: "ENCE356",
         title: "Engineering Economics",
         examType: "T",
         theoryAss: 40,
@@ -335,7 +335,7 @@ export const semesters: Semester[] = [
         total: 100,
       },
       {
-        code: "ENCT_351",
+        code: "ENCT351",
         title: "Artificial Intelligence",
         examType: "B",
         theoryAss: 40,
@@ -344,7 +344,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENCT_352",
+        code: "ENCT352",
         title: "Software Engineering",
         examType: "B",
         theoryAss: 40,
@@ -353,7 +353,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_353",
+        code: "ENCT353",
         title: "Simulation and Modeling",
         examType: "B",
         theoryAss: 40,
@@ -362,14 +362,14 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_354",
+        code: "ENCT354",
         title: "Minor Project",
         examType: "P",
         practicalAss: 50,
         total: 50,
       },
       {
-        code: "ENCT_385-399",
+        code: "ENCT385-399",
         title: "Elective II",
         examType: "B",
         theoryAss: 40,
@@ -386,7 +386,7 @@ export const semesters: Semester[] = [
     totalMarks: 625,
     subjects: [
       {
-        code: "ENEX_416",
+        code: "ENEX416",
         title: "Digital Signal Analysis and Processing",
         examType: "B",
         theoryAss: 40,
@@ -395,7 +395,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_411",
+        code: "ENCT411",
         title: "Distributed and Cloud Computing",
         examType: "B",
         theoryAss: 40,
@@ -404,7 +404,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_412",
+        code: "ENCT412",
         title: "ICT Project Management",
         examType: "T",
         theoryAss: 40,
@@ -412,7 +412,7 @@ export const semesters: Semester[] = [
         total: 100,
       },
       {
-        code: "ENEX_417",
+        code: "ENEX417",
         title: "Energy, Environment and Social Engineering",
         examType: "T",
         theoryAss: 40,
@@ -420,7 +420,7 @@ export const semesters: Semester[] = [
         total: 100,
       },
       {
-        code: "ENCT_435-444",
+        code: "ENCT435-444",
         title: "Elective III",
         examType: "B",
         theoryAss: 40,
@@ -429,7 +429,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_413",
+        code: "ENCT413",
         title: "Project I",
         examType: "P",
         practicalAss: 50,
@@ -444,7 +444,7 @@ export const semesters: Semester[] = [
     totalMarks: 550,
     subjects: [
       {
-        code: "ENCT_463",
+        code: "ENCT463",
         title: "Network and Cyber Security",
         examType: "B",
         theoryAss: 40,
@@ -453,7 +453,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_465-474",
+        code: "ENCT465-474",
         title: "Elective IV",
         examType: "B",
         theoryAss: 40,
@@ -462,7 +462,7 @@ export const semesters: Semester[] = [
         total: 125,
       },
       {
-        code: "ENCT_462",
+        code: "ENCT462",
         title: "Internship",
         examType: "P",
         practicalAss: 100,
@@ -470,7 +470,7 @@ export const semesters: Semester[] = [
         total: 150,
       },
       {
-        code: "ENCT_461",
+        code: "ENCT461",
         title: "Project II",
         examType: "P",
         practicalAss: 100,

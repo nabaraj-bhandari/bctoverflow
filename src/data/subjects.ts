@@ -10,201 +10,201 @@ export const semesters: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
 export const subjectsBySem: Record<number, readonly Subject[]> = {
   1: [
     {
-      code: "ENSH_101",
+      code: "ENSH101",
       title: "Engineering Mathematics I",
     },
     {
-      code: "ENCT_101",
+      code: "ENCT101",
       title: "Computer Programming",
     },
     {
-      code: "ENME_101",
+      code: "ENME101",
       title: "Engineering Drawing",
     },
     {
-      code: "ENEX_101",
+      code: "ENEX101",
       title: "Fundamental of Electrical and Electronics Engineering",
     },
     {
-      code: "ENSH_102",
+      code: "ENSH102",
       title: "Engineering Physics",
     },
     {
-      code: "ENME_106",
+      code: "ENME106",
       title: "Engineering Workshop",
     },
   ],
   2: [
     {
-      code: "ENSH_151",
+      code: "ENSH151",
       title: "Engineering Mathematics II",
     },
     {
-      code: "ENCT_151",
+      code: "ENCT151",
       title: "Object Oriented Programming",
     },
     {
-      code: "ENEX_152",
+      code: "ENEX152",
       title: "Digital Logic",
     },
     {
-      code: "ENEX_151",
+      code: "ENEX151",
       title: "Electronic Device and Circuits",
     },
     {
-      code: "ENSH_153",
+      code: "ENSH153",
       title: "Engineering Chemistry",
     },
     {
-      code: "ENEE_154",
+      code: "ENEE154",
       title: "Electrical Circuits and Machines",
     },
   ],
   3: [
     {
-      code: "ENSH_201",
+      code: "ENSH201",
       title: "Engineering Mathematics III",
     },
     {
-      code: "ENSH_204",
+      code: "ENSH204",
       title: "Communication English",
     },
     {
-      code: "ENCT_201",
+      code: "ENCT201",
       title: "Computer Graphics and Visualization",
     },
     {
-      code: "ENCT_202",
+      code: "ENCT202",
       title: "Foundation of Data Science",
     },
     {
-      code: "ENCT_203",
+      code: "ENCT203",
       title: "Theory of Computation",
     },
     {
-      code: "ENEX_201",
+      code: "ENEX201",
       title: "Microprocessors",
     },
   ],
   4: [
     {
-      code: "ENSH_252",
+      code: "ENSH252",
       title: "Numerical Methods",
     },
     {
-      code: "ENEX_252",
+      code: "ENEX252",
       title: "Instrumentation",
     },
     {
-      code: "ENEX_254",
+      code: "ENEX254",
       title: "Electromagnetics",
     },
     {
-      code: "ENCT_252",
+      code: "ENCT252",
       title: "Data Structure and Algorithm",
     },
     {
-      code: "ENCT_253",
+      code: "ENCT253",
       title: "Data Communication",
     },
     {
-      code: "ENCT_254",
+      code: "ENCT254",
       title: "Operating System",
     },
   ],
   5: [
     {
-      code: "ENSH_304",
+      code: "ENSH304",
       title: "Probability and Statistics",
     },
     {
-      code: "ENCT_301",
+      code: "ENCT301",
       title: "Database Management System",
     },
     {
-      code: "ENCT_302",
+      code: "ENCT302",
       title: "Web Application Programming",
     },
     {
-      code: "ENCT_303",
+      code: "ENCT303",
       title: "Computer Organization and Architecture",
     },
     {
-      code: "ENCT_304",
+      code: "ENCT304",
       title: "Computer Networks",
     },
     {
-      code: "ENCT_325-344",
+      code: "ENCT325-344",
       title: "Elective I",
     },
   ],
   6: [
     {
-      code: "ENCE_356",
+      code: "ENCE356",
       title: "Engineering Economics",
     },
     {
-      code: "ENCT_351",
+      code: "ENCT351",
       title: "Artificial Intelligence",
     },
     {
-      code: "ENCT_352",
+      code: "ENCT352",
       title: "Software Engineering",
     },
     {
-      code: "ENCT_353",
+      code: "ENCT353",
       title: "Simulation and Modeling",
     },
     {
-      code: "ENCT_354",
+      code: "ENCT354",
       title: "Minor Project",
     },
     {
-      code: "ENCT_385-399",
+      code: "ENCT385-399",
       title: "Elective II",
     },
   ],
   7: [
     {
-      code: "ENEX_416",
+      code: "ENEX416",
       title: "Digital Signal Analysis and Processing",
     },
     {
-      code: "ENCT_411",
+      code: "ENCT411",
       title: "Distributed and Cloud Computing",
     },
     {
-      code: "ENCT_412",
+      code: "ENCT412",
       title: "ICT Project Management",
     },
     {
-      code: "ENEX_417",
+      code: "ENEX417",
       title: "Energy, Environment and Social Engineering",
     },
     {
-      code: "ENCT_435-444",
+      code: "ENCT435-444",
       title: "Elective III",
     },
     {
-      code: "ENCT_413",
+      code: "ENCT413",
       title: "Project I",
     },
   ],
   8: [
     {
-      code: "ENCT_463",
+      code: "ENCT463",
       title: "Network and Cyber Security",
     },
     {
-      code: "ENCT_465-474",
+      code: "ENCT465-474",
       title: "Elective IV",
     },
     {
-      code: "ENCT_462",
+      code: "ENCT462",
       title: "Internship",
     },
     {
-      code: "ENCT_461",
+      code: "ENCT461",
       title: "Project II",
     },
   ],

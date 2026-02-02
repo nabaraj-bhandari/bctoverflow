@@ -26,7 +26,12 @@ export async function GET(req: Request) {
       });
     }
 
-    return new Response(JSON.stringify(resources), {
+    const result = resources.map((resource) => ({
+      id: resource.id,
+      title: resource.title,
+    }));
+
+    return new Response(JSON.stringify(result), {
       status: 200,
       headers: {
         "Content-Type": "application/json",

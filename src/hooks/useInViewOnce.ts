@@ -1,30 +1,37 @@
 import { useEffect, useRef, useState } from "react";
 
-export function useInViewOnce(options?: IntersectionObserverInit) {
-  const ref = useRef<HTMLDivElement | null>(null);
+interface UseInViewOnceOptions {
+  rootMargin?: string;
+  threshold?: number | number[];
+}
+
+export function useInViewOnce(options: UseInViewOnceOptions = {}) {
   const [inView, setInView] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const node = ref.current;
-    if (!node || typeof IntersectionObserver === "undefined") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setInView(true);
-      return;
-    }
+    const element = ref.current;
+    if (!element || inView) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
         if (entry.isIntersecting) {
           setInView(true);
           observer.disconnect();
         }
-      });
-    }, options);
+      },
+      {
+        rootMargin: options.rootMargin || "0px",
+        threshold: options.threshold || 0,
+      },
+    );
 
-    observer.observe(node);
+    observer.observe(element);
 
-    return () => observer.disconnect();
-  }, [options]);
+    return () => {
+      observer.disconnect();
+    };
+  }, [inView, options.rootMargin, options.threshold]);
 
-  return { ref, inView } as const;
+  return { ref, inView };
 }
