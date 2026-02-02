@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Resource } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -19,9 +18,9 @@ const colorFromId = (id: string) =>
 export function ResourceCard({ resource }: { resource: Resource }) {
   return (
     <div className="group relative aspect-3/4 w-full">
-      <Card
+      <div
         className={cn(
-          "relative h-full w-full cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/20",
+          "relative h-full w-full cursor-pointer overflow-hidden rounded-lg border bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/20",
           colorFromId(resource.id),
         )}
       >
@@ -30,7 +29,7 @@ export function ResourceCard({ resource }: { resource: Resource }) {
             {resource.title}
           </p>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

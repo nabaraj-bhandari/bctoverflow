@@ -74,7 +74,7 @@ export default function SubjectTable({ semester }: Props) {
                 <td className="px-2 py-2 border ">{s.code}</td>
                 <td className="px-2 py-2 border">
                   <Link
-                    href={`${semester.semNo}/${s.code}`}
+                    href={`/sem/${semester.semNo}/${s.code}`}
                     className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     {s.title}
