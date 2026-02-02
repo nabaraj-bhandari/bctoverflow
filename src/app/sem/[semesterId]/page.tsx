@@ -27,7 +27,7 @@ export default function SubjectsPage({
                   <div className="rounded-full bg-primary/10 p-3">
                     <BookOpen className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold md:text-lg">{subject.title}</h3>
+                  <h3 className="font-semibold md:text-md">{subject.title}</h3>
                 </div>
               </div>
             </Link>
