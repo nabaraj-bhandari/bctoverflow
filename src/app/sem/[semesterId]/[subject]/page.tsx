@@ -16,7 +16,7 @@ export default async function ResourcesPage({
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/subject?code=${subject}`,
     {
       next: {
-        revalidate: 3600,
+        revalidate: 60 * 5,
       },
     },
   );
