@@ -10,7 +10,7 @@ import {
 } from "react";
 
 import { Loader2, X, Download } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn, slugify } from "../lib/utils";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import type { DocumentProps, PageProps } from "react-pdf";
 
@@ -69,8 +69,15 @@ export default function PdfViewer({
   useEffect(() => {
     if (typeof window === "undefined") return;
     const updateWidth = () => {
-      const next = Math.min(window.innerWidth * 0.95, 1200);
-      setPageWidth(next);
+      const screenWidth = window.innerWidth;
+      const isMobile = screenWidth < 768;
+
+      // Calculate base width that fits the screen
+      const baseWidth = isMobile
+        ? screenWidth - 16 // 16px for padding (8px on each side)
+        : Math.min(screenWidth * 0.95, 1200);
+
+      setPageWidth(baseWidth);
     };
     updateWidth();
     window.addEventListener("resize", updateWidth);
@@ -94,7 +101,7 @@ export default function PdfViewer({
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = `${title}-${resourceTitle}.pdf`;
+      link.download = `${slugify(title)}-${resourceTitle}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -144,11 +151,17 @@ export default function PdfViewer({
       <style jsx global>{`
         .react-pdf__Page__textContent {
           opacity: 1 !important;
+          user-select: text !important;
+          -webkit-user-select: text !important;
         }
 
         .react-pdf__Page__textContent span {
           color: transparent !important;
           opacity: 1 !important;
+          position: absolute !important;
+          white-space: pre !important;
+          cursor: text !important;
+          transform-origin: 0% 0% !important;
         }
 
         .react-pdf__Page__textContent ::selection {
@@ -163,6 +176,20 @@ export default function PdfViewer({
 
         .react-pdf__Page__annotations {
           opacity: 1 !important;
+        }
+
+        .react-pdf__Page__canvas {
+          display: block !important;
+          user-select: none !important;
+          max-width: 100% !important;
+          height: auto !important;
+        }
+
+        .react-pdf__Page {
+          position: relative !important;
+          display: flex !important;
+          justify-content: center !important;
+          max-width: 100% !important;
         }
       `}</style>
 

@@ -12,7 +12,7 @@ export default async function ViewerPage({
   const params = await searchParams;
   const pdfUrl = params.pdf;
   const title = params.title || "PDF Viewer";
-  const resourceTitle = params.resourceTitle || "Notes";
+  const resourceTitle = params.resourceTitle || "";
 
   if (!pdfUrl) {
     return (
