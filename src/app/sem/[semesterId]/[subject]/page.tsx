@@ -15,9 +15,7 @@ export default async function ResourcesPage({
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/subject?code=${subject}`,
     {
-      next: {
-        revalidate: 60 * 5,
-      },
+      cache: "no-store",
     },
   );
 
