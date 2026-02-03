@@ -3,11 +3,16 @@ import ViewerClient from "./viewer.client";
 export default async function ViewerPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pdf?: string; title?: string }>;
+  searchParams: Promise<{
+    pdf?: string;
+    title?: string;
+    resourceTitle?: string;
+  }>;
 }) {
   const params = await searchParams;
   const pdfUrl = params.pdf;
   const title = params.title || "PDF Viewer";
+  const resourceTitle = params.resourceTitle || "Notes";
 
   if (!pdfUrl) {
     return (
@@ -26,5 +31,11 @@ export default async function ViewerPage({
     );
   }
 
-  return <ViewerClient url={decodeURIComponent(pdfUrl)} title={title} />;
+  return (
+    <ViewerClient
+      url={decodeURIComponent(pdfUrl)}
+      title={title}
+      resourceTitle={resourceTitle}
+    />
+  );
 }

@@ -7,11 +7,12 @@ export default async function ResourcesPage({
 }: {
   params: Promise<{
     resource: string;
+    subject: string;
   }>;
 }) {
-  const { resource } = await params;
+  const { resource, subject } = await params;
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/resource?id=${resource}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/resource?id=${resource}&subjectCode=${subject}`,
     { cache: "no-store" },
   );
   const sections: Section[] = await res.json();
@@ -23,7 +24,7 @@ export default async function ResourcesPage({
           {sections.map((section) => (
             <Link
               key={section.id}
-              href={`/viewer?pdf=${encodeURIComponent(section.url)}&title=${encodeURIComponent(section.title)}`}
+              href={`/viewer?pdf=${encodeURIComponent(section.url)}&title=${encodeURIComponent(section.title)}&resourceTitle=${encodeURIComponent(resource)}`}
             >
               <ResourceCard resource={section} />
             </Link>

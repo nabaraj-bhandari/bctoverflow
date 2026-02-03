@@ -5,6 +5,7 @@ import { slugify } from "@/lib/utils";
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
+  const subjectCode = searchParams.get("subjectCode");
 
   if (!id) {
     return new Response(JSON.stringify({ error: "Resource id is required" }), {
@@ -14,13 +15,26 @@ export async function GET(req: Request) {
       },
     });
   }
+
+  if (!subjectCode) {
+    return new Response(JSON.stringify({ error: "Subject code is required" }), {
+      status: 400,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
   try {
     const sections = await prisma.section.findMany({
-      where: { resourceId: id },
+      where: {
+        resourceId: id,
+        subjectCode: subjectCode,
+      },
     });
 
-    if (!sections) {
-      return new Response(JSON.stringify({ error: "No section not found" }), {
+    if (!sections || sections.length === 0) {
+      return new Response(JSON.stringify({ error: "No sections found" }), {
         status: 404,
         headers: {
           "Content-Type": "application/json",
@@ -42,7 +56,7 @@ export async function GET(req: Request) {
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
-    return new Response(JSON.stringify({ error: "Internal Server ErrorS" }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
       headers: {
         "Content-Type": "application/json",

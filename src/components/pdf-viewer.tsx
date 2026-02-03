@@ -6,25 +6,34 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 
-import { Loader2, X, RotateCcw } from "lucide-react";
+import { Loader2, X, Download } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import type { DocumentProps, PageProps } from "react-pdf";
 
-const RENDER_TEXT = false;
-const RENDER_ANNOTATIONS = false;
+// Import required CSS for text and annotation layers
+import "react-pdf/dist/Page/TextLayer.css";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+
+const RENDER_TEXT = true; // Enable text selection
+const RENDER_ANNOTATIONS = true; // Enable annotations
 
 interface PdfViewerProps {
   url: string;
   title: string;
+  resourceTitle: string;
   onClose: () => void;
 }
 
-export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
+export default function PdfViewer({
+  url,
+  title,
+  resourceTitle,
+  onClose,
+}: PdfViewerProps) {
   const [PDFDocument, setPDFDocument] =
     useState<ComponentType<DocumentProps> | null>(null);
   const [PDFPage, setPDFPage] = useState<ComponentType<PageProps> | null>(null);
@@ -32,7 +41,7 @@ export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
   const [pageWidth, setPageWidth] = useState<number>(960);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const loadedPagesRef = useRef<number | null>(null);
+  const [downloading, setDownloading] = useState<boolean>(false);
 
   // Client-only dynamic import
   useEffect(() => {
@@ -52,7 +61,6 @@ export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
   );
 
   useEffect(() => {
-    loadedPagesRef.current = null;
     setNumPages(0);
     setLoading(true);
     setError(null);
@@ -70,18 +78,47 @@ export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
   }, []);
 
   const handleLoadSuccess = useCallback((pdf: { numPages: number }) => {
-    if (loadedPagesRef.current === pdf.numPages) return;
-    loadedPagesRef.current = pdf.numPages;
     setNumPages(pdf.numPages);
     setLoading(false);
   }, []);
 
-  const clearCache = useCallback(() => {
-    setError(null);
-    setLoading(true);
-    setNumPages(0);
-    loadedPagesRef.current = null;
-  }, []);
+  const handleDownload = useCallback(async () => {
+    if (!proxyUrl || downloading) return;
+
+    try {
+      setDownloading(true);
+      const response = await fetch(proxyUrl);
+      const blob = await response.blob();
+
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `${title}-${resourceTitle}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      console.error("Download failed:", err);
+    } finally {
+      setDownloading(false);
+    }
+  }, [proxyUrl, title, resourceTitle, downloading]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    },
+    [onClose],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   const pages = useMemo(() => {
     return Array.from({ length: numPages }, (_, i) => (
@@ -104,33 +141,75 @@ export default function PdfViewer({ url, title, onClose }: PdfViewerProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm overscroll-none">
+      <style jsx global>{`
+        .react-pdf__Page__textContent {
+          opacity: 1 !important;
+        }
+
+        .react-pdf__Page__textContent span {
+          color: transparent !important;
+          opacity: 1 !important;
+        }
+
+        .react-pdf__Page__textContent ::selection {
+          background: rgba(59, 130, 246, 0.3) !important;
+          color: transparent !important;
+        }
+
+        .react-pdf__Page__textContent ::-moz-selection {
+          background: rgba(59, 130, 246, 0.3) !important;
+          color: transparent !important;
+        }
+
+        .react-pdf__Page__annotations {
+          opacity: 1 !important;
+        }
+      `}</style>
+
       <header className="flex items-center justify-between gap-3 border-b border-white/10 bg-black/70 px-4 py-2 text-white">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-lg font-semibold">{title}</p>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-md border border-white/20 text-white transition hover:border-white/40 hover:bg-white/10",
+          {numPages > 0 && (
+            <p className="text-xs text-white/60">{numPages} pages</p>
           )}
-          aria-label="Close PDF viewer"
-        >
-          <X className="h-6 w-6" />
-        </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={downloading || loading}
+            className={cn(
+              "flex items-center gap-2 rounded-md border border-white/20 bg-white/5 px-3 py-1.5 text-sm text-white transition hover:bg-white/10",
+              (downloading || loading) && "cursor-not-allowed opacity-40",
+            )}
+            aria-label="Download PDF"
+          >
+            {downloading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            Download
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-md border border-white/20 text-white transition hover:border-white/40 hover:bg-white/10",
+            )}
+            aria-label="Close PDF viewer"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
       </header>
 
       <div className="flex-1 overflow-auto p-2">
         {error && (
           <div className="flex h-full flex-col items-center justify-center gap-4 text-sm text-white/80">
             <p>{error}</p>
-            <button
-              onClick={clearCache}
-              className="flex items-center gap-2 rounded-md border border-white/20 bg-white/10 px-3 py-2 transition hover:bg-white/20"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Refresh Cache
-            </button>
           </div>
         )}
 
