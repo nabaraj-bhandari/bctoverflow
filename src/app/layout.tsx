@@ -77,7 +77,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${poppins.variable} antialiased`}>
-        <div className="flex flex-col max-w-6xl mx-auto h-full">
+        <div className="flex flex-col h-full">
           <Providers>
             <CatalogPrefetch />
             <Navbar />

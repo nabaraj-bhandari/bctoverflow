@@ -108,7 +108,7 @@ export default function ViewerClient({
   }, [download, title]);
 
   return (
-    <div className="h-screen w-screen">
+    <div className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm overscroll-none">
       <PDFViewer
         ref={viewerRef}
         config={{
