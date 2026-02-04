@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.3.0",
   "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../lib/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Subject {\n  code      String     @id\n  resources Resource[]\n}\n\nmodel Resource {\n  id          String\n  subjectCode String\n  title       String\n  githubPath  String\n\n  sections Section[]\n  subject  Subject   @relation(fields: [subjectCode], references: [code])\n\n  @@id([subjectCode, id])\n}\n\nmodel Section {\n  id          String\n  resourceId  String\n  subjectCode String\n  title       String\n  checksum    String\n  resource    Resource @relation(fields: [subjectCode, resourceId], references: [subjectCode, id])\n\n  @@id([subjectCode, resourceId, id])\n}\n",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/lib/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Subject {\n  code      String     @id\n  resources Resource[]\n}\n\nmodel Resource {\n  id          String\n  subjectCode String\n  title       String\n  githubPath  String\n\n  sections Section[]\n  subject  Subject   @relation(fields: [subjectCode], references: [code])\n\n  @@id([subjectCode, id])\n}\n\nmodel Section {\n  id          String\n  resourceId  String\n  subjectCode String\n  title       String\n  checksum    String\n  resource    Resource @relation(fields: [subjectCode, resourceId], references: [subjectCode, id])\n\n  @@id([subjectCode, resourceId, id])\n}\n\nmodel MetaData {\n  id        Int      @id @default(1)\n  checksum  String\n  updatedAt DateTime @updatedAt\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Subject\":{\"fields\":[{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"resources\",\"kind\":\"object\",\"type\":\"Resource\",\"relationName\":\"ResourceToSubject\"}],\"dbName\":null},\"Resource\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subjectCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"githubPath\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sections\",\"kind\":\"object\",\"type\":\"Section\",\"relationName\":\"ResourceToSection\"},{\"name\":\"subject\",\"kind\":\"object\",\"type\":\"Subject\",\"relationName\":\"ResourceToSubject\"}],\"dbName\":null},\"Section\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"resourceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subjectCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"checksum\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"resource\",\"kind\":\"object\",\"type\":\"Resource\",\"relationName\":\"ResourceToSection\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Subject\":{\"fields\":[{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"resources\",\"kind\":\"object\",\"type\":\"Resource\",\"relationName\":\"ResourceToSubject\"}],\"dbName\":null},\"Resource\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subjectCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"githubPath\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sections\",\"kind\":\"object\",\"type\":\"Section\",\"relationName\":\"ResourceToSection\"},{\"name\":\"subject\",\"kind\":\"object\",\"type\":\"Subject\",\"relationName\":\"ResourceToSubject\"}],\"dbName\":null},\"Section\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"resourceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subjectCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"checksum\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"resource\",\"kind\":\"object\",\"type\":\"Resource\",\"relationName\":\"ResourceToSection\"}],\"dbName\":null},\"MetaData\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"checksum\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -205,6 +205,16 @@ export interface PrismaClient<
     * ```
     */
   get section(): Prisma.SectionDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.metaData`: Exposes CRUD operations for the **MetaData** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MetaData
+    * const metaData = await prisma.metaData.findMany()
+    * ```
+    */
+  get metaData(): Prisma.MetaDataDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

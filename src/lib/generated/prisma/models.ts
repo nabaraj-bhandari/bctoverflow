@@ -11,4 +11,5 @@
 export type * from './models/Subject'
 export type * from './models/Resource'
 export type * from './models/Section'
+export type * from './models/MetaData'
 export type * from './commonInputTypes'

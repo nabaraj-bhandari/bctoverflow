@@ -386,7 +386,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Subject: 'Subject',
   Resource: 'Resource',
-  Section: 'Section'
+  Section: 'Section',
+  MetaData: 'MetaData'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -402,7 +403,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "subject" | "resource" | "section"
+    modelProps: "subject" | "resource" | "section" | "metaData"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -628,6 +629,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MetaData: {
+      payload: Prisma.$MetaDataPayload<ExtArgs>
+      fields: Prisma.MetaDataFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MetaDataFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MetaDataFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload>
+        }
+        findFirst: {
+          args: Prisma.MetaDataFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MetaDataFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload>
+        }
+        findMany: {
+          args: Prisma.MetaDataFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload>[]
+        }
+        create: {
+          args: Prisma.MetaDataCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload>
+        }
+        createMany: {
+          args: Prisma.MetaDataCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MetaDataCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload>[]
+        }
+        delete: {
+          args: Prisma.MetaDataDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload>
+        }
+        update: {
+          args: Prisma.MetaDataUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload>
+        }
+        deleteMany: {
+          args: Prisma.MetaDataDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MetaDataUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MetaDataUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload>[]
+        }
+        upsert: {
+          args: Prisma.MetaDataUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetaDataPayload>
+        }
+        aggregate: {
+          args: Prisma.MetaDataAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMetaData>
+        }
+        groupBy: {
+          args: Prisma.MetaDataGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MetaDataGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MetaDataCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MetaDataCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -695,6 +770,15 @@ export const SectionScalarFieldEnum = {
 export type SectionScalarFieldEnum = (typeof SectionScalarFieldEnum)[keyof typeof SectionScalarFieldEnum]
 
 
+export const MetaDataScalarFieldEnum = {
+  id: 'id',
+  checksum: 'checksum',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MetaDataScalarFieldEnum = (typeof MetaDataScalarFieldEnum)[keyof typeof MetaDataScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -742,6 +826,34 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DateTime'
+ */
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+/**
+ * Reference to a field of type 'DateTime[]'
+ */
+export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -842,6 +954,7 @@ export type GlobalOmitConfig = {
   subject?: Prisma.SubjectOmit
   resource?: Prisma.ResourceOmit
   section?: Prisma.SectionOmit
+  metaData?: Prisma.MetaDataOmit
 }
 
 /* Types for Logging */

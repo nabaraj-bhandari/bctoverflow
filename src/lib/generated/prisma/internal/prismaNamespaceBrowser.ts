@@ -53,7 +53,8 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Subject: 'Subject',
   Resource: 'Resource',
-  Section: 'Section'
+  Section: 'Section',
+  MetaData: 'MetaData'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -98,6 +99,15 @@ export const SectionScalarFieldEnum = {
 } as const
 
 export type SectionScalarFieldEnum = (typeof SectionScalarFieldEnum)[keyof typeof SectionScalarFieldEnum]
+
+
+export const MetaDataScalarFieldEnum = {
+  id: 'id',
+  checksum: 'checksum',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MetaDataScalarFieldEnum = (typeof MetaDataScalarFieldEnum)[keyof typeof MetaDataScalarFieldEnum]
 
 
 export const SortOrder = {

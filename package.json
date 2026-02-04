@@ -10,11 +10,12 @@
     "postbuild": "next-sitemap"
   },
   "dependencies": {
+    "@embedpdf/react-pdf-viewer": "^2.4.1",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
+    "@tanstack/react-query": "^5.90.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "googleapis": "^170.1.0",
     "lucide-react": "^0.556.0",
     "next": "^16.1.4",
     "next-sitemap": "^4.2.3",

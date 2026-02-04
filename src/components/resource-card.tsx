@@ -1,4 +1,4 @@
-import { Resource } from "@/lib/types";
+import { Resource, Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const COLORS = [
@@ -15,7 +15,7 @@ const COLORS = [
 const colorFromId = (id: string) =>
   COLORS[id.split("").reduce((h, c) => h + c.charCodeAt(0), 0) % COLORS.length];
 
-export function ResourceCard({ resource }: { resource: Resource }) {
+export function ResourceCard({ resource }: { resource: Resource | Section }) {
   return (
     <div className="group relative aspect-3/4 w-full">
       <div

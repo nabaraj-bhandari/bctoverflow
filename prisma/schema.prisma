@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  output   = "../src/lib/generated/prisma"
 }
 
 datasource db {
@@ -10,6 +10,8 @@ datasource db {
 model Subject {
   code      String     @id
   resources Resource[]
+  
+  @@index([code])
 }
 
 model Resource {
@@ -17,11 +19,11 @@ model Resource {
   subjectCode String
   title       String
   githubPath  String
-
   sections    Section[]
-  subject     Subject   @relation(fields: [subjectCode], references: [code])
-
+  subject     Subject   @relation(fields: [subjectCode], references: [code], onDelete: Cascade)
+  
   @@id([subjectCode, id])
+  @@index([subjectCode])
 }
 
 model Section {
@@ -30,7 +32,14 @@ model Section {
   subjectCode String
   title       String
   checksum    String
-  resource    Resource @relation(fields: [subjectCode, resourceId], references: [subjectCode, id])
-
+  resource    Resource @relation(fields: [subjectCode, resourceId], references: [subjectCode, id], onDelete: Cascade)
+  
   @@id([subjectCode, resourceId, id])
+  @@index([subjectCode, resourceId])
+}
+
+model MetaData {
+  id        Int      @id @default(1)
+  checksum  String
+  updatedAt DateTime @updatedAt
 }

@@ -32,3 +32,8 @@ export type Resource = Prisma.ResourceModel
  * 
  */
 export type Section = Prisma.SectionModel
+/**
+ * Model MetaData
+ * 
+ */
+export type MetaData = Prisma.MetaDataModel

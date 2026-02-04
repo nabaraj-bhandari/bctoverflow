@@ -47,3 +47,10 @@ body {
 .td {
   @apply border px-3 py-2 text-center;
 }
+
+html,
+body,
+#__next {
+  height: 100%;
+  margin: 0;
+}
