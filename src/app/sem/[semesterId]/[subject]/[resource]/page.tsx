@@ -32,7 +32,6 @@ export default function SectionsPage({
     return (
       <div className="container mx-auto p-4 text-center">
         <p className="text-destructive">Error loading sections</p>
-        <p className="text-sm text-muted-foreground">{error.message}</p>
       </div>
     );
   }
