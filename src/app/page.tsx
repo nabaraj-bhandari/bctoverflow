@@ -51,7 +51,7 @@ export default function Home() {
             </Link>
           </div>
           <Link
-            href={"https://discord.gg/ynzewN9w"}
+            href={"https://discord.gg/xadXspQgks"}
             className="
               group flex items-center justify-center gap-2
               h-12 rounded-xl bg-card/60 border border-border

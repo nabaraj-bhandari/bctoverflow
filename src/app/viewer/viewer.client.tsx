@@ -118,7 +118,6 @@ export default function ViewerClient({
             "document",
             "tools",
             "redaction",
-            "annotation",
             "document-export",
             "zoom",
             "panel",
