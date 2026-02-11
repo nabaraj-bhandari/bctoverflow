@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useMemo, useEffect, use } from "react";
 import { useResourceSections } from "@/hooks/useCatalogData";
 import { PDFViewer } from "@embedpdf/react-pdf-viewer";
@@ -12,43 +13,55 @@ interface ViewerPageProps {
 }
 
 export default function ViewerPage({ searchParams }: ViewerPageProps) {
-  // Unwrap the Promise using React.use()
   const params = use(searchParams);
   const subjectCode = params?.subject;
   const resourceId = params?.resource;
 
   const sections = useResourceSections(subjectCode || "", resourceId || "");
-  const [selectedSection, setSelectedSection] = useState(sections[0] ?? null);
 
-  // Auto-select first section
+  const [mounted, setMounted] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<
+    (typeof sections)[number] | null
+  >(null);
+
   useEffect(() => {
-    if (sections.length > 0 && !selectedSection)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (sections.length > 0 && !selectedSection) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedSection(sections[0]);
+    }
   }, [sections, selectedSection]);
 
-  if (!subjectCode || !resourceId)
+  const file = useMemo(() => {
+    if (!selectedSection) return "";
+    return `/api/pdf?url=${encodeURIComponent(selectedSection.url)}`;
+  }, [selectedSection]);
+
+  if (!mounted) return null;
+
+  if (!subjectCode || !resourceId) {
     return (
       <div className="flex items-center justify-center h-screen text-white">
         Invalid viewer URL
       </div>
     );
+  }
 
-  if (!selectedSection)
+  if (!selectedSection) {
     return (
       <div className="flex items-center justify-center h-screen text-white">
         No sections available
       </div>
     );
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const file = useMemo(
-    () => `/api/pdf?url=${encodeURIComponent(selectedSection.url)}`,
-    [selectedSection.url],
-  );
+  }
 
   return (
     <div className="fixed inset-0 flex flex-col bg-black">
-      {/* Header / Mobile Dropdown */}
+      {/* Mobile Header */}
       <div className="lg:hidden bg-black/70 border-b border-white/20 p-3 flex justify-between items-center">
         <select
           value={selectedSection.id}
@@ -64,13 +77,17 @@ export default function ViewerPage({ searchParams }: ViewerPageProps) {
             </option>
           ))}
         </select>
-        <button
-          onClick={() => history.back()}
-          className="ml-2 p-2 rounded-sm hover:bg-white/10"
-        >
-          <X className="w-5 h-5 text-white" />
-        </button>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => history.back()}
+            className="ml-2 p-2 rounded-sm hover:bg-white/10"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+        </div>
       </div>
+
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex lg:w-80 flex-col bg-black/80 border-r border-white/20">
@@ -83,6 +100,7 @@ export default function ViewerPage({ searchParams }: ViewerPageProps) {
               <X className="w-5 h-5 text-white" />
             </button>
           </div>
+
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {sections.map((section) => (
               <button
@@ -99,19 +117,36 @@ export default function ViewerPage({ searchParams }: ViewerPageProps) {
             ))}
           </div>
         </aside>
+
         {/* PDF Viewer */}
         <div className="flex-1 relative">
-          <PDFViewer
-            key={selectedSection.id}
-            config={{ src: file }}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-            }}
-          />
+          {selectedSection && (
+            <PDFViewer
+              key={selectedSection.id}
+              config={{
+                src: file,
+
+                disabledCategories: [
+                  "redaction",
+                  "zoom",
+                  "annotation",
+                  "document",
+                  "panel-sidebar",
+                  "panel-comment",
+                  "tools",
+                  "selection",
+                  "history",
+                ],
+              }}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
