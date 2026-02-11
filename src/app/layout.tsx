@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/navbar";
-import { Providers } from "./Providers";
 import { CatalogPrefetch } from "@/components/catalog-prefetch";
 
 const poppins = Poppins({
@@ -78,11 +76,8 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.variable} antialiased`}>
         <div className="flex flex-col h-full">
-          <Providers>
-            <CatalogPrefetch />
-            <Navbar />
-            <main>{children}</main>
-          </Providers>
+          <CatalogPrefetch />
+          <main>{children}</main>
         </div>
       </body>
     </html>

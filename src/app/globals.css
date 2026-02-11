@@ -1,34 +1,58 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+:root {
+  /* Professional glass variables */
+  --glass-bg: 255 255 255 / 0.03;
+  --glass-bg-strong: 255 255 255 / 0.08;
+  --glass-bg-hover: 255 255 255 / 0.05;
+
+  --glass-border: 255 255 255 / 0.08;
+  --glass-border-strong: 255 255 255 / 0.12;
+
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  --glass-shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.6);
+
+  --glass-blur-sm: 8px;
+  --glass-blur-md: 16px;
+  --glass-blur-lg: 24px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @theme {
-  --color-background: hsl(260, 7%, 8%); /* Dark Gray */
-  --color-foreground: hsl(0, 0%, 99%);
+  --color-background: hsl(220 20% 8%); /* very dark blue-gray */
+  --color-foreground: hsl(210 20% 92%); /* soft white */
 
-  --color-card: hsl(0 0% 20%);
-  --color-card-foreground: hsl(210 40% 98%);
+  --color-card: hsl(220 18% 12%);
+  --color-card-foreground: hsl(210 20% 92%);
 
-  --color-popover: hsl(0 0% 20%);
-  --color-popover-foreground: hsl(210 40% 98%);
+  --color-popover: hsl(220 18% 12%);
+  --color-popover-foreground: hsl(210 20% 92%);
 
-  --color-primary: hsl(45 100% 51%); /* Amber */
-  --color-primary-foreground: hsl(0 0% 10%);
+  --color-primary: hsl(210 100% 55%); /* professional blue */
+  --color-primary-foreground: hsl(0 0% 100%);
 
-  --color-secondary: hsl(0 0% 25%);
-  --color-secondary-foreground: hsl(210 40% 98%);
+  --color-secondary: hsl(220 15% 18%);
+  --color-secondary-foreground: hsl(210 20% 92%);
 
-  --color-muted: hsl(0 0% 25%);
-  --color-muted-foreground: hsl(215 20.2% 65.1%);
+  --color-muted: hsl(220 15% 15%);
+  --color-muted-foreground: hsl(215 15% 55%);
 
-  --color-accent: hsl(45 100% 65%); /* Light Orange */
-  --color-accent-foreground: hsl(0 0% 10%);
+  --color-accent: hsl(217 91% 60%); /* accent blue */
+  --color-accent-foreground: hsl(0 0% 100%);
 
-  --color-destructive: hsl(0 62.8% 30.6%);
-  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-destructive: hsl(0 84% 60%); /* red */
+  --color-destructive-foreground: hsl(0 0% 100%);
 
-  --color-border: hsl(0 0% 25%);
-  --color-input: hsl(0 0% 25%);
-  --color-ring: hsl(45 100% 51%);
+  --color-border: hsl(220 15% 20%);
+  --color-input: hsl(220 15% 20%);
+  --color-ring: hsl(210 100% 55%);
 }
 
 body {
@@ -38,6 +62,8 @@ body {
   font-family: var(--font-poppins);
   color: var(--color-foreground);
   background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .th {
@@ -48,9 +74,160 @@ body {
   @apply border px-3 py-2 text-center;
 }
 
-html,
-body,
-#__next {
-  height: 100%;
-  margin: 0;
+/* Professional glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Subtle animated background */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.bg-app {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    hsl(220 20% 8%) 0%,
+    hsl(225 25% 10%) 25%,
+    hsl(230 20% 12%) 50%,
+    hsl(225 25% 10%) 75%,
+    hsl(220 20% 8%) 100%
+  );
+  background-size: 200% 200%;
+  animation: gradient-shift 30s ease infinite;
+}
+
+/* Subtle noise texture */
+.bg-app::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(59, 130, 246, 0.03) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 60%,
+      rgba(99, 102, 241, 0.02) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+}
+
+/* Fine grid pattern */
+.bg-app::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* Professional button styles */
+.glass-button {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.25s var(--ease-out);
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Card styles */
+.glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s var(--ease-out);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.glass-apple {
+  position: relative;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-apple::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--x, 50%) var(--y, 50%),
+    rgba(255, 255, 255, 0.15),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.glass-apple:hover::after {
+  opacity: 1;
 }
